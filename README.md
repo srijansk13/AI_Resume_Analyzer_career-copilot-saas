@@ -15,7 +15,7 @@
 
 ### 🔗 Production Deployment
 
-https://ai-resume-analyzer-career-copilot-s.vercel.app/
+Dropping it soon.....
 
 ---
 
