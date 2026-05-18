@@ -1,0 +1,85 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Environment & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+!.env.example
+
+# API keys & certificates
+*.pem
+*.key
+*.crt
+*.pfx
+*.cer
+
+# Node
+node_modules
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+/.pnpm-debug.log*
+
+# Next.js
+.next
+out
+
+# Turbopack / Turbo
+.turbo
+
+# Logs
+*.log
+logs
+/logs/*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE files
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build artifacts
+dist
+build
+
+# Cache & Temp files
+.cache
+tmp
+temp
+*.tsbuildinfo
+next-env.d.ts
+
+# Uploads / Testing Assets
+uploads
+public/uploads
+storage/uploads
+temp/uploads
+
+# Local databases
+*.sqlite
+*.db
+*.db-journal
+
+# Coverage
+coverage
+.nyc_output
+
+# Runtime files
+pids
+*.pid
+*.seed
+*.pid.lock
