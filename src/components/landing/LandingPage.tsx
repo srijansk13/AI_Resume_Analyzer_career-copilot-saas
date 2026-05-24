@@ -18,23 +18,25 @@ import {
   Lock, 
   CheckCircle2, 
   Award,
-  Briefcase,
-  Terminal,
+  Eye,
   Cpu,
   Target,
   ArrowUpRight,
   Menu,
   X,
-  Compass
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import ResumeScanHero from './ResumeScanHero';
+import SampleAnalysisPreview from './SampleAnalysisPreview';
+import LiveEditorSection from './LiveEditorSection';
+import ProblemSolutionSection from './ProblemSolutionSection';
+import RoleAwareSection from './RoleAwareSection';
 
-// Mock Recruiter Trust Badges
 const TRUST_BADGES = [
-  { name: 'ATS-Safe Scan Verified', icon: <ShieldCheck className="w-4 h-4 text-emerald-400" /> },
-  { name: 'STAR Compliance Standard', icon: <Award className="w-4 h-4 text-purple-400" /> },
-  { name: 'ISO-27001 Data Privacy', icon: <Lock className="w-4 h-4 text-blue-400" /> },
-  { name: 'Recruiter Aligned Scoring', icon: <CheckCircle2 className="w-4 h-4 text-indigo-400" /> }
+  { name: 'ATS Optimized', icon: <ShieldCheck className="w-4 h-4 text-emerald-400" /> },
+  { name: 'Secure Resume Upload', icon: <Lock className="w-4 h-4 text-blue-400" /> },
+  { name: 'Role-Aware Feedback', icon: <Target className="w-4 h-4 text-indigo-400" /> },
+  { name: 'Live Resume Editor', icon: <FileText className="w-4 h-4 text-purple-400" /> },
 ];
 
 // Complex BEFORE / AFTER Resume Optimization Bullets
@@ -120,8 +122,8 @@ const FAQS = [
     a: "Absolutely. All resume contents, text hashes, and parsed user metadata are secured using enterprise-grade AES-256 encryption. We strictly hold zero monetization sharing policies—your professional profile remains 100% private and exclusively yours."
   },
   {
-    q: "What templates are supported in the Career OS?",
-    a: "We offer 15+ professionally formatted templates spanning classic 1-column layouts (trusted by rigid banking/traditional systems) and modern 2-column styles (optimized for design, technical startups, and product roles). All are verified to pass parsing parsers with 100% reading accuracy."
+    q: "What templates are supported in the live editor?",
+    a: "We offer professionally formatted templates spanning classic single-column layouts and modern styles optimized for technical and product roles. All are designed for clean ATS parsing and readable exports."
   },
   {
     q: "Can I customize the generated AI roadmaps?",
@@ -131,8 +133,6 @@ const FAQS = [
 
 export default function LandingPage() {
   const [activeBulletIndex, setActiveBulletIndex] = useState(0);
-  const [scanStep, setScanStep] = useState(0);
-  const [atsScore, setAtsScore] = useState(0);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -189,7 +189,7 @@ export default function LandingPage() {
       lastScrollY = scrollY;
 
       // Scrollspy matching
-      const sections = ['features', 'scanning-flow', 'optimization', 'faq'];
+      const sections = ['sample-analysis', 'how-it-works', 'features', 'live-editor', 'optimization', 'faq'];
       for (const sectionId of sections) {
         const el = document.getElementById(sectionId);
         if (el) {
@@ -213,31 +213,6 @@ export default function LandingPage() {
       window.removeEventListener('resize', updateDevice);
     };
   }, [cursorX, cursorY]);
-
-  // Simulated Scanning loop (Hero Visualizer)
-  useEffect(() => {
-    const scanInterval = setInterval(() => {
-      setScanStep((prev) => (prev + 1) % 4);
-    }, 4500);
-    return () => clearInterval(scanInterval);
-  }, []);
-
-  // Rising ATS Score simulation on load
-  useEffect(() => {
-    const scoreTimeout = setTimeout(() => {
-      const interval = setInterval(() => {
-        setAtsScore((prev) => {
-          if (prev >= 87) {
-            clearInterval(interval);
-            return 87;
-          }
-          return prev + 1;
-        });
-      }, 15);
-      return () => clearInterval(interval);
-    }, 800);
-    return () => clearTimeout(scoreTimeout);
-  }, []);
 
   if (!mounted) return null;
 
@@ -322,10 +297,11 @@ export default function LandingPage() {
           {/* Center Links with Active indicator trails */}
           <nav className="hidden md:flex items-center space-x-8 text-[11px] uppercase tracking-wider font-extrabold text-gray-400">
             {[
+              { label: 'Preview', href: '#sample-analysis', id: 'sample-analysis' },
+              { label: 'How it works', href: '#how-it-works', id: 'how-it-works' },
               { label: 'Features', href: '#features', id: 'features' },
-              { label: 'Intelligence Pipeline', href: '#scanning-flow', id: 'scanning-flow' },
-              { label: 'Before / After', href: '#optimization', id: 'optimization' },
-              { label: 'FAQ', href: '#faq', id: 'faq' }
+              { label: 'Live Editor', href: '#live-editor', id: 'live-editor' },
+              { label: 'FAQ', href: '#faq', id: 'faq' },
             ].map((link) => (
               <a 
                 key={link.id} 
@@ -363,7 +339,7 @@ export default function LandingPage() {
               onMouseLeave={() => setCursorHovered(false)}
             >
               <Button className="relative overflow-hidden bg-white hover:bg-slate-200 text-black text-xs font-black px-4.5 h-9 rounded-xl shadow-lg shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all group/cta">
-                <span className="relative z-10">Get Started</span>
+                <span className="relative z-10">Analyze My Resume</span>
                 <span className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 opacity-0 group-hover/cta:opacity-100 transition-opacity duration-300" />
               </Button>
             </Link>
@@ -392,9 +368,10 @@ export default function LandingPage() {
             className="fixed top-20 inset-x-4 z-40 bg-[#07070a]/95 backdrop-blur-2xl border border-white/10 rounded-2xl p-6 shadow-2xl space-y-6 md:hidden flex flex-col"
           >
             <nav className="flex flex-col space-y-4 text-xs font-extrabold tracking-wider uppercase text-gray-400">
+              <a href="#sample-analysis" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">Preview</a>
+              <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">How it works</a>
               <a href="#features" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">Features</a>
-              <a href="#scanning-flow" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">Intelligence Pipeline</a>
-              <a href="#optimization" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">Before / After</a>
+              <a href="#live-editor" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">Live Editor</a>
               <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">FAQ</a>
             </nav>
             <div className="h-px bg-white/5 w-full" />
@@ -403,15 +380,15 @@ export default function LandingPage() {
                 <Button className="w-full text-xs font-extrabold border border-white/10 hover:bg-white/5 py-2.5 rounded-xl bg-transparent text-white">Log In</Button>
               </Link>
               <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full text-xs font-extrabold bg-white text-black py-2.5 rounded-xl hover:bg-slate-200">Get Started</Button>
+                <Button className="w-full text-xs font-extrabold bg-white text-black py-2.5 rounded-xl hover:bg-slate-200">Analyze My Resume</Button>
               </Link>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 4. HERO SECTION */}
-      <section className="relative pt-32 pb-20 lg:pt-44 lg:pb-28">
+      {/* HERO */}
+      <section id="home" className="relative pt-32 pb-20 lg:pt-44 lg:pb-28 scroll-mt-24">
         <div className="container px-4 md:px-6 mx-auto max-w-7xl relative">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
@@ -424,18 +401,18 @@ export default function LandingPage() {
                 className="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/5 px-3 py-1.5 text-[10px] text-indigo-400 font-extrabold tracking-widest uppercase"
               >
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>AI Career Operating System</span>
+                <span>AI Resume Analyzer</span>
               </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.05] max-w-2xl"
+                className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight text-white leading-[1.08] max-w-2xl"
               >
-                Command your path with{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">
-                  AI Intelligence
+                Get recruiter-style AI feedback on your resume in{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400">
+                  seconds
                 </span>
               </motion.h1>
 
@@ -445,7 +422,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="text-sm sm:text-base text-gray-400 font-semibold leading-relaxed max-w-xl"
               >
-                An investor-grade dashboard engineered to analyze resume ATS compatibility, detect critical keyword holes, rewrite bullet points with quantifiable STAR metrics, and structure personalized learning roadmaps.
+                Analyze your resume, understand what&apos;s holding it back, improve ATS compatibility, optimize bullet points, and edit everything live — all in one workflow.
               </motion.p>
 
               <motion.div
@@ -460,21 +437,27 @@ export default function LandingPage() {
                   onMouseLeave={() => setCursorHovered(false)}
                 >
                   <Button className="h-11 px-6 bg-white hover:bg-slate-200 text-black rounded-xl text-xs font-black shadow-lg shadow-white/5 flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                    Start Analyzing Free
+                    Analyze My Resume
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Link 
-                  href="/login"
-                  onMouseEnter={() => setCursorHovered(true)}
-                  onMouseLeave={() => setCursorHovered(false)}
-                >
+                <a href="#sample-analysis">
                   <Button variant="outline" className="h-11 px-6 border-white/10 hover:border-white/20 text-white hover:bg-white/5 rounded-xl text-xs font-black bg-white/[0.02] flex items-center gap-1.5 backdrop-blur-md hover:scale-[1.02] active:scale-[0.98] transition-all">
-                    <Briefcase className="h-4 w-4 text-indigo-400" />
-                    Open Sandbox
+                    <Eye className="h-4 w-4 text-cyan-400" />
+                    View Sample Analysis
                   </Button>
-                </Link>
+                </a>
               </motion.div>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.35 }}
+                className="text-[11px] text-gray-500 font-semibold flex items-center gap-1.5"
+              >
+                <Lock className="w-3.5 h-3.5 text-blue-400/80" />
+                Your resume is securely processed and never shared publicly.
+              </motion.p>
 
               {/* Recruiter trust badges bar */}
               <motion.div
@@ -492,133 +475,31 @@ export default function LandingPage() {
               </motion.div>
             </div>
 
-            {/* Right Column - Premium AI Scanning Dashboard Panel */}
             <div className="lg:col-span-6 relative flex justify-center">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.15 }}
-                className="w-full max-w-[480px] rounded-3xl bg-slate-950/90 border border-white/[0.08] shadow-2xl relative p-6 backdrop-blur-xl overflow-hidden group hover:border-white/[0.12] transition-all duration-500 shadow-indigo-500/[0.03]"
-              >
-                {/* Embedded Grid Lines */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none" />
-
-                {/* Animated Laser Scanning Line */}
-                <motion.div 
-                  animate={{ y: ["0%", "450%", "0%"] }}
-                  transition={{ repeat: Infinity, duration: 5.5, ease: "easeInOut" }}
-                  className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-70 blur-[2px] z-10 pointer-events-none"
-                  style={{ top: '10%' }}
-                />
-                
-                {/* Holographic Resume Panel Details */}
-                <div className="space-y-6 relative z-10">
-                  
-                  {/* Title & ATS Ring */}
-                  <div className="flex justify-between items-start pb-4 border-b border-white/[0.06]">
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <span className="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-[9px] font-black text-indigo-400 rounded-md">PARSING ACTIVE</span>
-                        <span className="text-[10px] font-mono text-gray-500">v1.2.9</span>
-                      </div>
-                      <div className="h-4.5 w-36 bg-white/10 rounded-md animate-pulse" />
-                      <div className="h-3 w-48 bg-white/5 rounded" />
-                    </div>
-
-                    {/* Circular ATS Ring with sweeping border */}
-                    <div className="h-16 w-16 rounded-full border border-white/[0.08] bg-slate-900 flex flex-col items-center justify-center relative shrink-0 shadow-lg shadow-black">
-                      <svg className="absolute inset-0 w-full h-full -rotate-90">
-                        <circle cx="32" cy="32" r="28" fill="transparent" stroke="rgba(255,255,255,0.02)" strokeWidth="3" />
-                        <motion.circle 
-                          cx="32" cy="32" r="28" 
-                          fill="transparent" 
-                          stroke="rgb(99, 102, 241)" 
-                          strokeWidth="3.5" 
-                          strokeDasharray={175} 
-                          animate={{ strokeDashoffset: 175 - (175 * atsScore) / 100 }}
-                          transition={{ duration: 1.5, ease: "easeOut" }}
-                        />
-                      </svg>
-                      <span className="text-[14px] font-black text-indigo-400 font-mono relative z-10">{atsScore}%</span>
-                      <span className="text-[7px] text-gray-500 font-bold uppercase tracking-wider relative z-10">Score</span>
-                    </div>
-                  </div>
-
-                  {/* Terminal parsing simulation */}
-                  <div className="p-3.5 bg-black/60 border border-white/[0.04] rounded-2xl space-y-2 font-mono text-[9px] text-gray-400">
-                    <div className="flex items-center justify-between text-indigo-400 border-b border-white/[0.03] pb-1.5 mb-1.5">
-                      <div className="flex items-center space-x-1.5">
-                        <Terminal className="w-3 h-3" />
-                        <span>AI_ENGINE_SCANNER</span>
-                      </div>
-                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                    </div>
-                    <div className="space-y-1">
-                      <p><span className="text-purple-400">INPUT:</span> "Srijan_Kumar_Resume.pdf"</p>
-                      <p><span className="text-yellow-400">EXTRACTING:</span> <span className="text-gray-300">"Experienced software engineer..."</span></p>
-                      <p><span className="text-emerald-400">ATS_MATCH:</span> 94% Skills compliance matched.</p>
-                      <p className="text-gray-500 animate-pulse">&gt; Analyzing structural hierarchy... COMPLETE</p>
-                    </div>
-                  </div>
-
-                  {/* Keyword Extraction Stream */}
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-1.5">
-                      <Activity className="w-3.5 h-3.5 text-indigo-400" />
-                      <span className="text-[9px] uppercase tracking-widest text-indigo-400 font-extrabold">Extracting Keywords</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border transition-colors ${scanStep >= 0 ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.15)]' : 'bg-white/5 border-white/10 text-gray-500'}`}>TypeScript</span>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border transition-colors ${scanStep >= 1 ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.15)]' : 'bg-white/5 border-white/10 text-gray-500'}`}>Next.js</span>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border transition-colors ${scanStep >= 2 ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.15)]' : 'bg-white/5 border-white/10 text-gray-500'}`}>GraphQL</span>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded border transition-colors ${scanStep >= 3 ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300 shadow-[0_0_10px_rgba(99,102,241,0.15)]' : 'bg-white/5 border-white/10 text-gray-500'}`}>MLOps</span>
-                    </div>
-                  </div>
-
-                  {/* Optimization Preview Card */}
-                  <div className="p-3 bg-white/[0.015] border border-white/[0.04] rounded-2xl space-y-2">
-                    <div className="flex items-center space-x-1">
-                      <Bot className="w-3 h-3 text-purple-400" />
-                      <span className="text-[9px] font-extrabold tracking-wider text-purple-400 uppercase">AI Rewrite Optimizer</span>
-                    </div>
-                    <p className="text-[10px] text-gray-400 leading-relaxed">
-                      "Transformed: <span className="text-gray-600 line-through">helped improve latency</span> into: <span className="text-white font-semibold">optimized dashboard render latencies by 42%</span>."
-                    </p>
-                  </div>
-                </div>
-
-                {/* Ambient glow behind card */}
-                <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-              </motion.div>
+              <ResumeScanHero isMobile={isMobileDevice} />
             </div>
 
           </div>
         </div>
       </section>
 
-      {/* Recruiter verification ribbon */}
-      <section className="py-10 bg-[#07070a]/40 border-y border-white/[0.04] backdrop-blur-md relative overflow-hidden">
-        <div className="container mx-auto px-4 max-w-7xl flex flex-wrap justify-around items-center gap-8 opacity-50 text-[10px] font-black tracking-widest text-gray-400 uppercase">
-          <div className="flex items-center space-x-2">
-            <Cpu className="w-4 h-4 text-indigo-400" />
-            <span>AI ENGINE SCORING</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>100% PRIVATE SCAN</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Lock className="w-4 h-4 text-blue-400" />
-            <span>ISO SECURITY STANDARDS</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Target className="w-4 h-4 text-purple-400" />
-            <span>RECRUITER LEVEL VERIFIED</span>
+      <section className="py-8 bg-[#07070a]/40 border-y border-white/[0.04] backdrop-blur-md relative overflow-hidden">
+        <div className="container mx-auto px-4 max-w-7xl flex flex-col items-center gap-3 text-center">
+          <p className="text-[11px] text-gray-500 font-semibold max-w-xl">
+            Private by design. Built for students, developers, and job seekers preparing for real applications.
+          </p>
+          <div className="flex flex-wrap justify-center gap-6 text-[10px] font-black tracking-widest text-gray-500 uppercase">
+            <span className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-400" /> Secure processing</span>
+            <span className="flex items-center gap-2"><Lock className="w-4 h-4 text-blue-400" /> Documents protected</span>
+            <span className="flex items-center gap-2"><Target className="w-4 h-4 text-purple-400" /> Role-aware insights</span>
           </div>
         </div>
       </section>
 
-      {/* 5. ATS FEATURES SECTION */}
+      <SampleAnalysisPreview />
+      <ProblemSolutionSection />
+
+      {/* FEATURES */}
       <section id="features" className="py-28 relative z-10 scroll-mt-12">
         <div className="container px-4 md:px-6 mx-auto max-w-7xl">
           <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
@@ -796,92 +677,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 6. AI WORKFLOW TIMELINE SECTION */}
-      <section id="scanning-flow" className="py-28 bg-[#050508]/40 border-y border-white/[0.04] scroll-mt-12 relative">
-        {/* Background connector line */}
-        <div className="absolute top-[280px] bottom-[120px] left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-indigo-500/40 via-purple-500/20 to-transparent z-0 hidden md:block" />
+      <LiveEditorSection />
+      <RoleAwareSection />
 
-        <div className="container px-4 md:px-6 mx-auto max-w-7xl relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/5 px-3 py-1 text-[9px] text-indigo-400 font-extrabold tracking-widest uppercase">
-              <Compass className="h-3 w-3" />
-              <span>Real-Time Processing</span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white leading-tight">
-              Sleek AI Parsing Workflow
-            </h2>
-            <p className="text-gray-400 text-sm sm:text-base font-semibold leading-relaxed max-w-xl mx-auto">
-              Follow our high-fidelity processing timeline showcasing exactly how Career Copilot digests, refines, and rates target resumes.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            
-            {/* Step 1 */}
-            <div className="bg-[#07070a]/70 border border-white/[0.04] p-6 rounded-2xl hover:border-indigo-500/20 hover:scale-[1.01] transition-all duration-300 relative group flex flex-col justify-between h-64">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-xs font-black text-indigo-400 font-mono">01</div>
-                  <span className="h-2 w-2 rounded-full bg-indigo-500/30 group-hover:bg-indigo-500 animate-ping" />
-                </div>
-                <h3 className="text-sm font-extrabold text-white">Parse & Extract</h3>
-                <p className="text-[11px] font-semibold text-gray-400 leading-relaxed">
-                  Upload your raw PDF draft; our text processing engines extract raw sentences, roles, dates, and keyword hashes.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono text-indigo-500 uppercase tracking-widest font-extrabold">Step 1 Completed</span>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-[#07070a]/70 border border-white/[0.04] p-6 rounded-2xl hover:border-purple-500/20 hover:scale-[1.01] transition-all duration-300 relative group flex flex-col justify-between h-64">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-xs font-black text-purple-400 font-mono">02</div>
-                  <span className="h-2 w-2 rounded-full bg-purple-500/30 group-hover:bg-purple-500 animate-ping" />
-                </div>
-                <h3 className="text-sm font-extrabold text-white">ATS Rules Evaluation</h3>
-                <p className="text-[11px] font-semibold text-gray-400 leading-relaxed">
-                  Evaluate formatting structures, margin guidelines, double columns, abbreviations, and title patterns.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono text-purple-500 uppercase tracking-widest font-extrabold">Step 2 Active</span>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-[#07070a]/70 border border-white/[0.04] p-6 rounded-2xl hover:border-pink-500/20 hover:scale-[1.01] transition-all duration-300 relative group flex flex-col justify-between h-64">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-10 w-10 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-xs font-black text-pink-400 font-mono">03</div>
-                  <span className="h-2 w-2 rounded-full bg-pink-500/30 group-hover:bg-pink-500" />
-                </div>
-                <h3 className="text-sm font-extrabold text-white">STAR Metric Optimize</h3>
-                <p className="text-[11px] font-semibold text-gray-400 leading-relaxed">
-                  Advanced AI reviews accomplishments to automatically recommend high-impact metrics and phrasing.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono text-pink-500 uppercase tracking-widest font-extrabold">Step 3 Pending</span>
-            </div>
-
-            {/* Step 4 */}
-            <div className="bg-[#07070a]/70 border border-white/[0.04] p-6 rounded-2xl hover:border-emerald-500/20 hover:scale-[1.01] transition-all duration-300 relative group flex flex-col justify-between h-64">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xs font-black text-emerald-400 font-mono">04</div>
-                  <span className="h-2 w-2 rounded-full bg-emerald-500/30 group-hover:bg-emerald-500" />
-                </div>
-                <h3 className="text-sm font-extrabold text-white">Job Target Matching</h3>
-                <p className="text-[11px] font-semibold text-gray-400 leading-relaxed">
-                  Simulate recruiting evaluations against specific job descriptions to yield real-time compatibility profiles.
-                </p>
-              </div>
-              <span className="text-[9px] font-mono text-emerald-500 uppercase tracking-widest font-extrabold">Step 4 Pending</span>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* 7. BEFORE / AFTER COMPARISON SECTION */}
+      {/* BEFORE / AFTER */}
       <section id="optimization" className="py-28 relative scroll-mt-12">
         <div className="container px-4 md:px-6 mx-auto max-w-6xl relative z-10">
           
@@ -1104,61 +903,53 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 9. FINAL CTA SECTION */}
+      {/* FINAL CTA */}
       <section className="py-28 relative overflow-hidden border-t border-white/[0.04]">
-        {/* Cinematic Background mesh lights */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] bg-gradient-to-r from-indigo-500/[0.04] to-purple-500/[0.04] blur-[150px] pointer-events-none rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] bg-gradient-to-r from-indigo-500/[0.04] to-cyan-500/[0.04] blur-[150px] pointer-events-none rounded-full" />
         
         <div className="container px-4 md:px-6 mx-auto max-w-4xl text-center relative z-10 space-y-8">
-          <h2 className="text-4xl md:text-5.5xl font-extrabold tracking-tight text-white leading-[1.1]">
-            Ready to command your <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-500">
-              professional growth?
-            </span>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white leading-[1.1]">
+            Ready to see what your resume is missing?
           </h2>
           
           <p className="text-gray-400 text-sm font-semibold max-w-lg mx-auto leading-relaxed">
-            Create your account today and experience investor-grade intelligence analysis, live editors, and tailored job match profiles inside a closed beta Career OS.
+            Get ATS insights, recruiter-style feedback, and live resume improvements in one workflow.
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-2">
-            <Link 
-              href="/signup"
-              onMouseEnter={() => setCursorHovered(true)}
-              onMouseLeave={() => setCursorHovered(false)}
-            >
+            <Link href="/signup">
               <Button className="h-12 px-8 bg-white hover:bg-slate-200 text-black rounded-xl text-xs font-black shadow-lg shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5">
-                Access Sandbox Now
+                Analyze My Resume
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
+            <a href="#sample-analysis">
+              <Button variant="outline" className="h-12 px-6 border-white/10 text-white hover:bg-white/5 rounded-xl text-xs font-black bg-white/[0.02]">
+                View Sample Analysis
+              </Button>
+            </a>
           </div>
 
-          <div className="pt-6 border-t border-white/[0.04] max-w-md mx-auto flex justify-center gap-6 opacity-60">
-            <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              ATS Scored Verified
-            </span>
-            <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1.5">
-              <Award className="w-3.5 h-3.5 text-purple-400" />
-              STAR Compliant
-            </span>
-          </div>
-
-          <p className="text-[9px] uppercase tracking-widest font-black text-gray-600">
-            Engineered and optimized for ambitious developers & leaders.
+          <p className="text-[11px] text-gray-500 font-semibold max-w-md mx-auto">
+            Your resume is securely processed and never shared publicly.
           </p>
         </div>
       </section>
 
       {/* 10. FOOTER */}
       <footer className="py-10 border-t border-white/[0.03] bg-[#030303] relative z-10">
-        <div className="container mx-auto px-4 max-w-7xl flex flex-col sm:flex-row justify-between items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">
-          <span>© 2026 Career Copilot Inc.</span>
-          <div className="flex space-x-8">
-            <a href="#features" className="hover:text-white transition-colors" onMouseEnter={() => setCursorHovered(true)} onMouseLeave={() => setCursorHovered(false)}>Features</a>
-            <a href="#scanning-flow" className="hover:text-white transition-colors" onMouseEnter={() => setCursorHovered(true)} onMouseLeave={() => setCursorHovered(false)}>Flow</a>
-            <a href="#faq" className="hover:text-white transition-colors" onMouseEnter={() => setCursorHovered(true)} onMouseLeave={() => setCursorHovered(false)}>FAQ</a>
+        <div className="container mx-auto px-4 max-w-7xl space-y-4">
+          <p className="text-center text-[11px] text-gray-500 font-semibold normal-case tracking-normal max-w-2xl mx-auto">
+            Private by design. Your documents stay protected. Career Copilot helps you prepare stronger applications — not replace professional career advice.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest">
+            <span>© 2026 Career Copilot</span>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a href="#sample-analysis" className="hover:text-white transition-colors">Preview</a>
+              <a href="#features" className="hover:text-white transition-colors">Features</a>
+              <a href="#live-editor" className="hover:text-white transition-colors">Editor</a>
+              <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+            </div>
           </div>
         </div>
       </footer>
