@@ -137,6 +137,8 @@ Instead of repeatedly uploading resumes after every small change, users can impr
 
 This creates a much smoother and more intelligent resume improvement workflow compared to traditional ATS tools.
 
+---
+
 ## ✅ AI Bullet Point Optimization
 
 Weak bullet points are transformed into stronger recruiter-grade achievements using STAR-style optimization.
