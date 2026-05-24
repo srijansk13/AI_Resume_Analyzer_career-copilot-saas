@@ -158,6 +158,7 @@ export function buildCompleteFallbackAnalysis() {
     roadmap: buildDefaultRoadmap(),
     keywords: buildDefaultKeywords(),
     wow: buildDefaultWow(),
-    optimization: buildDefaultOptimization()
+    optimization: buildDefaultOptimization(),
+    suggested_projects: []
   };
 }

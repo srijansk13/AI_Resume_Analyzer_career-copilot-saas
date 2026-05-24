@@ -7,11 +7,22 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
+const TARGET_ROLES = [
+  'Frontend Developer',
+  'Full Stack Developer',
+  'Backend Developer',
+  'Data Analyst',
+  'ML Engineer',
+  'Product Manager',
+  'UI/UX Designer'
+];
+
 export default function UploadArea() {
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [jd, setJd] = useState('');
+  const [selectedRole, setSelectedRole] = useState('Full Stack Developer');
   const [showJd, setShowJd] = useState(false);
   const [error, setError] = useState('');
   
@@ -135,6 +146,9 @@ export default function UploadArea() {
       formData.append('resume', file);
       if (jd.trim()) {
         formData.append('jd', jd);
+      }
+      if (selectedRole) {
+        formData.append('targetRole', selectedRole);
       }
 
       const res = await fetch('/api/upload', {
@@ -418,15 +432,39 @@ export default function UploadArea() {
               </Button>
             </div>
             
-            <div className="mb-6">
-              {!showJd ? (
-                <button
-                  onClick={() => setShowJd(true)}
-                  className="text-xs text-indigo-400 hover:text-indigo-300 font-black transition-colors flex items-center gap-1 bg-indigo-500/5 px-3 py-1.5 rounded-lg border border-indigo-500/10"
-                >
-                  <span>+</span> Add Target Job Description (Highly Recommended)
-                </button>
-              ) : (
+            <div className="mb-6 space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-indigo-400" />
+                  Target Career Role
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {TARGET_ROLES.map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      onClick={() => setSelectedRole(role)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all duration-200 ${
+                        selectedRole === role
+                          ? 'bg-indigo-500/10 border-indigo-500/40 text-indigo-300 shadow-[0_0_15px_-3px_rgba(99,102,241,0.2)]'
+                          : 'bg-white/[0.02] border-white/[0.05] text-gray-400 hover:text-gray-200 hover:border-white/10'
+                      }`}
+                    >
+                      {role}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                {!showJd ? (
+                  <button
+                    onClick={() => setShowJd(true)}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 font-black transition-colors flex items-center gap-1 bg-indigo-500/5 px-3 py-1.5 rounded-lg border border-indigo-500/10"
+                  >
+                    <span>+</span> Add Target Job Description (Highly Recommended)
+                  </button>
+                ) : (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -452,6 +490,7 @@ export default function UploadArea() {
                   />
                 </motion.div>
               )}
+              </div>
             </div>
 
             <div className="flex justify-end pt-2">

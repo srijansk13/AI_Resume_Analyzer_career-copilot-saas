@@ -1,6 +1,7 @@
 import { MasterAnalysisSchema } from '../validations/ai-schemas';
 import { callGeminiWaterfall } from './gemini';
 import { buildCompleteFallbackAnalysis } from './fallback/defaults';
+import { filterVerifiedParsedProjects } from '../resume/projectIntegrity';
 
 function deepMerge(target: any, source: any): any {
   if (typeof target !== 'object' || target === null) return source !== undefined ? source : target;
@@ -259,6 +260,22 @@ function normalizeData(data: any) {
     // Preserve awards and achievements separately
     if (!Array.isArray(pd.awards)) pd.awards = [];
     if (!Array.isArray(pd.achievements)) pd.achievements = [];
+
+    if (Array.isArray(pd.projects)) {
+      pd.projects = pd.projects.map((proj: any) => {
+        if (!proj || typeof proj !== 'object') return proj;
+        return {
+          title: proj.title || proj.name || 'Project',
+          name: proj.name || proj.title || 'Project',
+          description: proj.description || proj.summary || '',
+          bullets: Array.isArray(proj.bullets) ? proj.bullets : [],
+          technologies: proj.technologies || proj.tools || proj.techStack || [],
+          link: proj.link || proj.url || proj.github || '',
+        };
+      });
+    } else {
+      pd.projects = [];
+    }
   }
 }
 
@@ -349,20 +366,27 @@ function buildEnrichedFallback(fallback: any, partialData: any, resumeText: stri
   return enriched;
 }
 
-export async function runFullAnalysis(resumeText: string, jd?: string) {
-  console.log(`[AI] Starting Master Analysis`);
+export async function runFullAnalysis(resumeText: string, jd?: string, targetRole?: string) {
+  console.log(`[AI] Starting Master Analysis (Target Role: ${targetRole || 'None Specified'})`);
 
   const masterPrompt = `
     You are an elite Career Strategist and FAANG Technical Recruiter.
     Evaluate the candidate's resume and generate deeply personalized insights.
     
+    ${targetRole ? `Target Career Role: ${targetRole}. You MUST tailor the entire analysis, ATS suggestions, recruiter concerns, roadmaps, missing skills, bullet optimizations, and project suggestions specifically to align the candidate with a high-caliber ${targetRole} role.` : ''}
+    
     CRITICAL RULES:
-    1. EXTRACT EXACT project names, metrics, and technical skills from the text.
-    2. NEVER output generic templates like "Learn React" or "Add numbers." Focus ONLY on the candidate's actual context.
-    3. Generate a 90-day roadmap based strictly on missing adjacent skills to their current stack.
-    4. Provide recruiter concerns citing specific gaps in tenure or missing quantifiable impact on specific projects.
-    5. You MUST return ALL requested top-level blocks: parsedData, ats, recruiter, roadmap, keywords, wow, and optimization. Do NOT omit recruiter, roadmap, optimization, or wow modules under any circumstances.
-    6. Return valid JSON only. Do not wrap the JSON in markdown code blocks or backticks (\`\`\`json). Do not add any preamble, conversational introductions, or explanations. Respond with ONLY the raw JSON object.
+    1. EXTRACT EXACT project names, metrics, and technical skills from the text. NEVER invent or infer resume content.
+    2. parsedData.projects MUST ONLY list projects explicitly named in the resume (typically under a Projects section). If none exist, return "projects": []. NEVER move jobs from experience into projects. NEVER create projects from generic words (website, app, dashboard, platform, manager).
+    3. NEVER hallucinate demo projects (e.g. Smart Task Manager, Personal Portfolio Website, CipherKey Password Generator).
+    4. suggested_projects are NEW portfolio ideas to build — NOT items on the resume. Return 2-3 practical, beginner-friendly projects tailored to the target role with realistic stacks.
+    5. Use recruiter-recognized terminology only (React, Next.js, Node.js, AWS, Docker, PostgreSQL, REST APIs, TypeScript). BAN fluffy phrases like "Structured JSON Processing", "Dashboard Systems", "AI Workflow Integration", "Semantic Resume Analysis".
+    6. keywords.detected_skills: max 12 technical, max 15 tools, max 8 soft. keywords.density: top 10 highest-value ATS terms only. missing_critical_skills: max 6 role-relevant gaps.
+    7. NEVER output generic templates like "Learn React" or "Add numbers." Focus ONLY on the candidate's actual context.
+    8. Generate a 90-day roadmap based strictly on missing adjacent skills to their current stack.
+    9. Provide recruiter concerns citing specific gaps in tenure or missing quantifiable impact on real experience.
+    10. You MUST return ALL requested top-level blocks: parsedData, ats, recruiter, roadmap, keywords, wow, optimization, and suggested_projects.
+    11. Return valid JSON only. No markdown fences or preamble — ONLY the raw JSON object.
     
     ${jd ? `Target Job Description: ${jd}` : ''}
     
@@ -393,7 +417,18 @@ export async function runFullAnalysis(resumeText: string, jd?: string) {
       "roadmap": { "confidence_score": 80, "timeline": {"days_30": [], "days_60": [], "days_90": []}, "role_transition": {"current_level": "...", "next_logical_role": "...", "estimated_salary_impact": "..."}, "skill_dependencies": [] },
       "keywords": { "confidence_score": 90, "density": [], "detected_skills": {"technical": [], "soft": [], "tools": []}, "missing_critical_skills": [], "overused_buzzwords": [], "semantic_clusters": [] },
       "wow": { "confidence_score": 85, "tone_analysis": "...", "interview_questions": [], "achievement_amplifier": [] },
-      "optimization": { "confidence_score": 85, "summary_rewrite": {"original": "...", "optimized": "...", "recruiter_impact": "..."}, "bullet_optimizations": [] }
+      "optimization": { "confidence_score": 85, "summary_rewrite": {"original": "...", "optimized": "...", "recruiter_impact": "..."}, "bullet_optimizations": [] },
+      "suggested_projects": [
+        {
+          "title": "Practical project title",
+          "why_it_helps": "Why this helps for a ${targetRole || 'target'} role based on their actual gaps.",
+          "skills_covered": ["React", "TypeScript"],
+          "suggested_stack": ["Next.js", "MongoDB"],
+          "resume_impact": "One sentence on recruiter/ATS benefit.",
+          "portfolio_value": "One sentence on portfolio/demo value.",
+          "difficulty_level": "Beginner"
+        }
+      ]
     }
   `;
 
@@ -619,6 +654,7 @@ export async function runFullAnalysis(resumeText: string, jd?: string) {
     keywords: masterData.keywords || defaults.keywords,
     wow: masterData.wow || defaults.wow,
     optimization: masterData.optimization || defaults.optimization,
+    suggested_projects: masterData.suggested_projects || defaults.suggested_projects || [],
     analysisSource,
     modelUsed,
     fallbackUsed,
@@ -630,7 +666,8 @@ export async function runFullAnalysis(resumeText: string, jd?: string) {
       roadmap: analysisSource,
       keywords: analysisSource,
       wow: analysisSource,
-      optimization: analysisSource
+      optimization: analysisSource,
+      suggested_projects: analysisSource
     }
   };
 
@@ -752,6 +789,13 @@ export async function runFullAnalysis(resumeText: string, jd?: string) {
         (finalAnalysis.moduleSources as any)[k] = analysisSource;
       });
     }
+  }
+
+  if (finalAnalysis.parsedData && Array.isArray(finalAnalysis.parsedData.projects)) {
+    finalAnalysis.parsedData.projects = filterVerifiedParsedProjects(
+      finalAnalysis.parsedData.projects,
+      resumeText
+    );
   }
 
   console.log("[Analysis Extracted Counts]", {

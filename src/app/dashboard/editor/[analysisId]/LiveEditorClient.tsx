@@ -8,6 +8,10 @@ import { EditorState, ResumeData } from '@/models/EditorState';
 import EditorLayout from '@/components/editor/EditorLayout';
 import { calculateATSScore } from '@/utils/atsScorer';
 import { motion } from 'framer-motion';
+import {
+  filterVerifiedParsedProjects,
+  getProjectTitle,
+} from '@/lib/resume/projectIntegrity';
 
 interface LiveEditorClientProps {
   analysis: IAnalysis;
@@ -35,132 +39,10 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
 
   useEffect(() => {
     const parsedData = analysis.parsedData || resume.parsedData || {};
+    const resumeSourceText = resume.originalText || '';
 
-    // 0. Project keyword guard & dynamic preprocessor
-    const isProjectTitle = (title: string) => {
-      const lower = title.toLowerCase().trim();
-      if (!lower) return false;
-      // Safeguard: Never match actual job roles to keep experiences intact
-      if (
-        lower.includes('product manager') || 
-        lower.includes('project manager') || 
-        lower.includes('engineering manager') || 
-        lower.includes('marketing manager') || 
-        lower.includes('sales manager') || 
-        lower.includes('general manager') ||
-        lower.includes('account manager') ||
-        lower.includes('operations manager') ||
-        lower.includes('development manager')
-      ) {
-        return false;
-      }
-      return (
-        lower.includes('smart task') ||
-        lower.includes('task manager') ||
-        lower.includes('task management') ||
-        lower.includes('manager app') ||
-        lower.includes('web application') ||
-        lower.includes('cipherkey') ||
-        lower.includes('portfolio website') ||
-        lower.includes('password generator') ||
-        lower.includes('app') ||
-        lower.includes('application') ||
-        lower.includes('website') ||
-        lower.includes('dashboard') ||
-        lower.includes('platform') ||
-        lower.includes('system') ||
-        lower.includes('tool') ||
-        lower.includes('generator') ||
-        lower.includes('portfolio') ||
-        lower.includes('manager')
-      );
-    };
-
-    // Deep scanning fallback specifications for the 3 required projects
-    const requiredSpecs = [
-      {
-        keyword: 'cipherkey',
-        name: 'CipherKey Advanced Password Generator',
-        technologies: ['React', 'TypeScript', 'TailwindCSS', 'Web Crypto API'],
-        description: 'An ultra-secure, client-side password generator and strength analyzer built with clean React principles.',
-        bullets: [
-          'Engineered cryptographic password generation using browser Native Web Crypto API.',
-          'Implemented live visual entropy strength rating and password leak checker.'
-        ]
-      },
-      {
-        keyword: 'smart task',
-        name: 'Smart Task Manager',
-        technologies: ['Next.js', 'Node.js', 'MongoDB', 'Socket.io'],
-        description: 'A collaborative, real-time workspace application supporting task assignment and live status synchronization.',
-        bullets: [
-          'Developed interactive Kanban dashboard with drag-and-drop workflow updates.',
-          'Configured live alerts and persistent session status utilizing WebSocket channels.'
-        ]
-      },
-      {
-        keyword: 'portfolio website',
-        name: 'Personal Portfolio Website',
-        technologies: ['React', 'Framer Motion', 'TailwindCSS'],
-        description: 'A modern, interactive portfolio demonstrating technical skills, projects, and career timeline.',
-        bullets: [
-          'Designed premium responsive interfaces featuring glassmorphic cards and dynamic theme systems.',
-          'Optimized SEO metadata and asset sizes for high lighthouse performance scores.'
-        ]
-      }
-    ];
-
-    const orderSpec = [
-      'cipherkey advanced password generator',
-      'smart task manager',
-      'personal portfolio website'
-    ];
-
-    const interceptedProjects: any[] = [];
-
-    // Safety scanner moving incorrectly classified items into rawProjects list
-    const checkAndExtract = (arr: any[]) => {
-      if (!Array.isArray(arr)) return;
-      for (let i = arr.length - 1; i >= 0; i--) {
-        const item = arr[i];
-        if (!item) continue;
-        const title = (typeof item === 'string' ? item : (item.name || item.title || item.role || '')).trim();
-        if (isProjectTitle(title)) {
-          let bullets: string[] = [];
-          let description = '';
-          if (typeof item !== 'string') {
-            description = item.description || item.summary || '';
-            bullets = item.bullets || item.highlights || [];
-            if (typeof description === 'string' && description.includes('\n')) {
-              bullets = description.split('\n').map(s => s.trim()).filter(Boolean);
-              description = '';
-            }
-          }
-          interceptedProjects.push({
-            name: title,
-            title,
-            description,
-            bullets: Array.isArray(bullets) ? bullets : [],
-            technologies: (item && typeof item !== 'string' ? (item.technologies || item.techStack || []) : [])
-          });
-          arr.splice(i, 1);
-        }
-      }
-    };
-
-    // Scan DB items safely
-    if (parsedData.experience) checkAndExtract(parsedData.experience);
-    if (parsedData.workExperience) checkAndExtract(parsedData.workExperience);
-    if (parsedData.achievements) checkAndExtract(parsedData.achievements);
-    if (parsedData.awards) checkAndExtract(parsedData.awards);
-    if (parsedData.recognitions) checkAndExtract(parsedData.recognitions);
-    if (parsedData.leadership) checkAndExtract(parsedData.leadership);
-    if (parsedData.activities) checkAndExtract(parsedData.activities);
-    if (parsedData.publications) checkAndExtract(parsedData.publications);
-
-    // 1. Process project-like data & check if any exists in raw fields
+    // Projects: only from explicit parsed project fields (never reclassify experience)
     const rawProjects = [
-      ...interceptedProjects,
       ...(Array.isArray(parsedData.projects) ? parsedData.projects : []),
       ...(Array.isArray(parsedData.project) ? parsedData.project : []),
       ...(Array.isArray(parsedData.Project) ? parsedData.Project : []),
@@ -171,7 +53,11 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
       ...(Array.isArray((analysis as any).projects) ? (analysis as any).projects : []),
     ];
 
-    const hasProjectLike = rawProjects.some(p => p && (typeof p === 'string' || p.name || p.title));
+    const verifiedRawProjects = filterVerifiedParsedProjects(rawProjects, resumeSourceText);
+
+    const hasProjectLike = verifiedRawProjects.some(
+      (p) => p && (typeof p === 'string' || (p as { name?: string; title?: string }).name || (p as { title?: string }).title)
+    );
 
     // 2. Process certification-like data & check if any exists in raw fields
     const filterRecommendations = (name: string) => {
@@ -212,7 +98,9 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
         const savedCertsCount = parsedStored?.content?.certifications ? parsedStored.content.certifications.length : 0;
 
         // If local draft has empty lists but the raw analysis has content, ignore local draft
-        const isOldLocalStorageBroken = (savedProjectsCount === 0 && hasProjectLike) || (savedCertsCount === 0 && hasCertLike);
+        const isOldLocalStorageBroken =
+          (savedProjectsCount === 0 && hasProjectLike) ||
+          (savedCertsCount === 0 && hasCertLike);
 
         const totalSavedBullets = parsedStored && parsedStored.content && Array.isArray(parsedStored.content.experience)
           ? parsedStored.content.experience.reduce((sum: number, exp: any) => sum + (exp.bullets || []).length, 0)
@@ -269,38 +157,8 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
         };
       }
 
-      // Project safety injection on loaded drafts too!
-      if (parsedStored.content) {
-        if (!Array.isArray(parsedStored.content.projects)) {
-          parsedStored.content.projects = [];
-        }
-        
-        for (const spec of requiredSpecs) {
-          const exists = parsedStored.content.projects.some((p: any) => p && p.name && p.name.toLowerCase().includes(spec.keyword));
-          if (!exists) {
-            parsedStored.content.projects.push({
-              id: `proj-fallback-${Math.random().toString(36).substring(2, 9)}`,
-              name: spec.name,
-              title: spec.name,
-              description: spec.description,
-              bullets: spec.bullets,
-              technologies: spec.technologies,
-              link: ''
-            });
-          }
-        }
-
-        // Apply correct sort order to loaded draft's projects
-        parsedStored.content.projects.sort((a: any, b: any) => {
-          const aName = (a.name || '').toLowerCase();
-          const bName = (b.name || '').toLowerCase();
-          const aIdx = orderSpec.findIndex(spec => aName.includes(spec));
-          const bIdx = orderSpec.findIndex(spec => bName.includes(spec));
-          if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-          if (aIdx !== -1) return -1;
-          if (bIdx !== -1) return 1;
-          return 0;
-        });
+      if (parsedStored.content && !Array.isArray(parsedStored.content.projects)) {
+        parsedStored.content.projects = [];
       }
 
       setEditorState(parsedStored);
@@ -344,16 +202,7 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
     }
     const mergedSkills = Array.from(skillSet);
 
-    // Process Bullets helper
-    const applyOptimizedBullets = (bullets: string[] = []) => {
-      const optimizations = analysis.optimization?.bullet_optimizations || analysis.optimization?.bulletOptimizations || [];
-      return bullets.map(b => {
-        const match = optimizations.find((opt: any) => opt.original && opt.original.trim() === b.trim());
-        return match && match.optimized ? match.optimized : b;
-      });
-    };
-
-    // Experience mapping
+    // Experience mapping — keep original bullets; user applies AI optimizations from the Enhance panel
     const rawExperience = parsedData.experience || parsedData.workExperience || parsedData.workHistory || parsedData.work_history || [];
     const initialExperience = Array.isArray(rawExperience) ? rawExperience.map((exp: any, i: number) => {
       let bullets: string[] = [];
@@ -373,7 +222,7 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
         startDate: exp.startDate || exp.start_date || exp.start || '',
         endDate: exp.endDate || exp.end_date || exp.end || '',
         location: exp.location || '',
-        bullets: applyOptimizedBullets(bullets),
+        bullets,
       };
     }) : [];
 
@@ -393,21 +242,6 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
     const isCertKeyword = (text: string) => {
       const kw = ['certified', 'certification', 'certificate', 'course', 'credential', 'aws', 'azure', 'oracle', 'jpmorgan', 'deloitte'];
       return kw.some(k => text.toLowerCase().includes(k));
-    };
-
-    const isProjectNameLike = (title: string) => {
-      const lower = title.toLowerCase();
-      if (
-        lower.includes('smart task') ||
-        lower.includes('portfolio') ||
-        lower.includes('cipherkey') ||
-        lower.includes('generator') ||
-        lower.includes('manager')
-      ) {
-        return true;
-      }
-      const keywords = ['app', 'website', 'tool', 'system', 'platform', 'dashboard', 'generator', 'manager', 'portfolio'];
-      return keywords.some(k => lower.includes(k));
     };
 
     const isLeadKeyword = (text: string) => {
@@ -529,9 +363,9 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
 
     // Parse rawProjects with Smart Classifier
     const seenProjNames = new Set<string>();
-    for (const proj of rawProjects) {
+    for (const proj of verifiedRawProjects) {
       if (!proj) continue;
-      const name = (proj.name || proj.title || proj.projectName || (typeof proj === 'string' ? proj : '')).trim();
+      const name = getProjectTitle(proj);
       if (!name) continue;
 
       const lowerName = name.toLowerCase();
@@ -541,20 +375,22 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
       let bullets: string[] = [];
       let shortDescription = '';
 
+      const projObj = typeof proj === 'string' ? null : (proj as Record<string, unknown>);
+
       if (typeof proj === 'string') {
         shortDescription = proj.trim();
-      } else {
-        shortDescription = (proj.description || proj.shortDescription || '').trim();
+      } else if (projObj) {
+        shortDescription = String(projObj.description || projObj.shortDescription || '').trim();
 
-        if (Array.isArray(proj.bullets)) {
-          bullets = [...proj.bullets];
-        } else if (Array.isArray(proj.highlights)) {
-          bullets = [...proj.highlights];
-        } else if (Array.isArray(proj.description)) {
-          bullets = [...proj.description];
-        } else if (typeof proj.description === 'string' && proj.description.trim()) {
-          if (proj.description.includes('\n')) {
-            bullets = proj.description.split('\n').map((s: string) => s.trim()).filter(Boolean);
+        if (Array.isArray(projObj.bullets)) {
+          bullets = [...(projObj.bullets as string[])];
+        } else if (Array.isArray(projObj.highlights)) {
+          bullets = [...(projObj.highlights as string[])];
+        } else if (Array.isArray(projObj.description)) {
+          bullets = [...(projObj.description as string[])];
+        } else if (typeof projObj.description === 'string' && projObj.description.trim()) {
+          if (projObj.description.includes('\n')) {
+            bullets = projObj.description.split('\n').map((s: string) => s.trim()).filter(Boolean);
           }
         }
       }
@@ -609,8 +445,6 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
         if (allSentences.length > 1) {
           shortDescription = allSentences[0];
           bullets = allSentences.slice(1);
-        } else {
-          bullets = [`Engineered and deployed the full implementation of ${name}.`];
         }
       }
 
@@ -626,29 +460,24 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
         }
       }
 
-      if (bullets.length === 0) {
-        bullets = [`Engineered and deployed the full implementation of ${name}.`];
-      }
-
       let technologies: string[] = [];
-      const rawTech = proj.technologies || proj.techStack || proj.tools || proj.tech || [];
+      const rawTech = projObj
+        ? (projObj.technologies || projObj.techStack || projObj.tools || projObj.tech || [])
+        : [];
       if (Array.isArray(rawTech)) {
         technologies = rawTech.map((t: any) => String(t));
       } else if (typeof rawTech === 'string') {
         technologies = rawTech.split(/[,;|•]+/).map((t: string) => t.trim()).filter(Boolean);
       }
 
-      const link = proj.link || proj.url || proj.github || '';
+      const link = projObj ? String(projObj.link || projObj.url || projObj.github || '') : '';
 
-      // SMART CLASSIFIER LOGIC FOR WHOLE PROJECT ITEMS
-      const isProtected = isProjectNameLike(name);
-
-      if (!isProtected && isCertKeyword(name)) {
+      if (isCertKeyword(name)) {
         initialCertifications.push({
           id: `cert-${Math.random().toString(36).substring(2, 9)}`,
           name,
-          issuer: proj.issuer || proj.organization || 'Google Cloud / AWS / Oracle',
-          date: proj.date || proj.year || '2025',
+          issuer: String(projObj?.issuer || projObj?.organization || 'Google Cloud / AWS / Oracle'),
+          date: String(projObj?.date || projObj?.year || '2025'),
           credentialUrl: link,
         });
         continue;
@@ -657,7 +486,7 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
       // Filter individual project bullets to extract misclassified items
       const projectBullets: string[] = [];
       for (const bullet of bullets) {
-        if (!isProtected && isCertKeyword(bullet)) {
+        if (isCertKeyword(bullet)) {
           initialCertifications.push({
             id: `cert-${Math.random().toString(36).substring(2, 9)}`,
             name: bullet.replace(/^(Certified in|Obtained certification for|Passed|Completed)\s+/i, '').trim(),
@@ -672,50 +501,15 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
       initialProjects.push({
         id: `proj-${Math.random().toString(36).substring(2, 9)}`,
         name,
-        title: proj.title || name,
+        title: (projObj?.title as string) || name,
         description: shortDescription,
-        bullets: applyOptimizedBullets(projectBullets.length > 0 ? projectBullets : bullets),
+        bullets: projectBullets.length > 0 ? projectBullets : bullets,
         technologies,
         link,
       });
     }
 
-    // Guarantee that the 3 required projects are present in the fresh build state
-    for (const spec of requiredSpecs) {
-      const exists = initialProjects.some(p => p.name && p.name.toLowerCase().includes(spec.keyword));
-      if (!exists) {
-        initialProjects.push({
-          id: `proj-fallback-${Math.random().toString(36).substring(2, 9)}`,
-          name: spec.name,
-          title: spec.name,
-          description: spec.description,
-          bullets: spec.bullets,
-          technologies: spec.technologies,
-          link: ''
-        });
-      }
-    }
-
-    // Sort initialProjects according to user specifications:
-    // 1. CipherKey Advanced Password Generator
-    // 2. Smart Task Manager
-    // 3. Personal Portfolio Website
-    // 4. Any other projects
-    initialProjects.sort((a, b) => {
-      const aName = a.name.toLowerCase();
-      const bName = b.name.toLowerCase();
-
-      const aIdx = orderSpec.findIndex(spec => aName.includes(spec));
-      const bIdx = orderSpec.findIndex(spec => bName.includes(spec));
-
-      if (aIdx !== -1 && bIdx !== -1) {
-        return aIdx - bIdx;
-      }
-      if (aIdx !== -1) return -1;
-      if (bIdx !== -1) return 1;
-
-      return 0; // Keep original order for remaining items
-    });
+    // Keep parsed projects exactly as they are without injecting mock defaults
 
     const initialData: ResumeData = {
       personalInfo: {
@@ -730,7 +524,7 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
           website: parsedData.website || parsedData.portfolio || '',
         }
       },
-      summary: analysis.optimization?.summary_rewrite?.optimized || analysis.optimization?.summaryRewrite?.optimized || parsedData.summary || parsedData.objective || parsedData.profile || '',
+      summary: parsedData.summary || parsedData.objective || parsedData.profile || '',
       experience: initialExperience,
       education: initialEducation,
       projects: initialProjects,

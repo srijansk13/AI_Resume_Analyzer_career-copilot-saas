@@ -52,133 +52,69 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
     });
   };
 
-  // AI Helpers
-  const applyAISummary = () => {
-    const aiSummary = analysis.optimization?.summary_rewrite?.optimized || analysis.optimization?.summaryRewrite?.optimized;
-    if (aiSummary) {
-      updateContent(draft => {
-        draft.summary = aiSummary;
-      });
+  const normalizeBulletText = (text: string) =>
+    text.toLowerCase().trim().replace(/\s+/g, ' ');
+
+  const getOptimizedSummaryText = (): string => {
+    const rewrite = analysis.optimization?.summary_rewrite;
+    if (typeof rewrite === 'string' && rewrite.trim()) return rewrite.trim();
+    if (rewrite && typeof rewrite === 'object' && typeof rewrite.optimized === 'string') {
+      return rewrite.optimized.trim();
     }
+    const legacy = analysis.optimization?.summaryRewrite;
+    if (typeof legacy === 'string' && legacy.trim()) return legacy.trim();
+    if (legacy?.optimized && typeof legacy.optimized === 'string') return legacy.optimized.trim();
+    return '';
   };
 
-  const isBulletOptimized = (optimizedText?: string) => {
+  // AI Helpers
+  const applyAISummary = () => {
+    const aiSummary = getOptimizedSummaryText();
+    if (!aiSummary) return;
+    updateContent((draft) => {
+      draft.summary = aiSummary;
+    });
+    setActiveTab('content');
+    setExpandedSection('summary');
+  };
+
+  const isBulletOptimized = (_originalText?: string, optimizedText?: string) => {
     if (!optimizedText || typeof optimizedText !== 'string') return false;
-    const textLower = optimizedText.toLowerCase().trim();
-    
-    // Check in experience
-    if (Array.isArray(editorState.content.experience)) {
-      for (const exp of editorState.content.experience) {
-        if (exp && Array.isArray(exp.bullets)) {
-          for (const bullet of exp.bullets) {
-            if (bullet && typeof bullet === 'string' && bullet.toLowerCase().trim() === textLower) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-    
-    // Check in projects
-    if (Array.isArray(editorState.content.projects)) {
-      for (const proj of editorState.content.projects) {
-        if (proj && Array.isArray(proj.bullets)) {
-          for (const bullet of proj.bullets) {
-            if (bullet && typeof bullet === 'string' && bullet.toLowerCase().trim() === textLower) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-    return false;
+    const optNorm = normalizeBulletText(optimizedText);
+
+    const hasOptimizedBullet = (bullets: string[] | undefined) =>
+      Array.isArray(bullets) &&
+      bullets.some((bullet) => typeof bullet === 'string' && normalizeBulletText(bullet) === optNorm);
+
+    if (hasOptimizedBullet(editorState.content.experience?.flatMap((e) => e.bullets))) return true;
+    return hasOptimizedBullet(editorState.content.projects?.flatMap((p) => p.bullets || []));
   };
 
   const applyBulletOptimization = (originalText?: string, optimizedText?: string) => {
     if (!optimizedText || typeof optimizedText !== 'string') return;
-    updateContent(draft => {
-      const origText = originalText || '';
-      const origLower = origText.toLowerCase().trim();
-      
-      // Helper for semantic match (simple word overlap)
-      const getWordOverlap = (s1: string, s2: string) => {
-        const words1 = new Set(s1.toLowerCase().split(/\W+/).filter(w => w.length > 2));
-        const words2 = new Set(s2.toLowerCase().split(/\W+/).filter(w => w.length > 2));
-        let match = 0;
-        words1.forEach(w => { if (words2.has(w)) match++; });
-        return match;
+    const origNorm = originalText ? normalizeBulletText(originalText) : '';
+    const optNorm = normalizeBulletText(optimizedText);
+
+    updateContent((draft) => {
+      const replaceInBullets = (bullets: string[] | undefined): boolean => {
+        if (!Array.isArray(bullets)) return false;
+        for (let i = 0; i < bullets.length; i++) {
+          const current = bullets[i];
+          if (typeof current !== 'string') continue;
+          const bNorm = normalizeBulletText(current);
+          if ((origNorm && bNorm === origNorm) || bNorm === optNorm) {
+            bullets[i] = optimizedText;
+            return true;
+          }
+        }
+        return false;
       };
 
-      let bestMatch = { section: '', index: -1, bulletIndex: -1, score: 0 };
-
-      // Look through experience bullets
-      if (Array.isArray(draft.experience)) {
-        for (let e = 0; e < draft.experience.length; e++) {
-          const exp = draft.experience[e];
-          if (exp && Array.isArray(exp.bullets)) {
-            for (let b = 0; b < exp.bullets.length; b++) {
-              const rawBullet = exp.bullets[b];
-              if (rawBullet && typeof rawBullet === 'string') {
-                const bText = rawBullet.toLowerCase().trim();
-                if (bText === origLower) {
-                  exp.bullets[b] = optimizedText;
-                  return; // Exact match found and applied
-                }
-                const score = getWordOverlap(origLower, bText);
-                if (score > bestMatch.score) {
-                  bestMatch = { section: 'experience', index: e, bulletIndex: b, score };
-                }
-              }
-            }
-          }
-        }
+      for (const exp of draft.experience || []) {
+        if (replaceInBullets(exp.bullets)) return;
       }
-      
-      // Look through projects bullets
-      if (Array.isArray(draft.projects)) {
-        for (let p = 0; p < draft.projects.length; p++) {
-          const proj = draft.projects[p];
-          if (proj && Array.isArray(proj.bullets)) {
-            for (let b = 0; b < proj.bullets.length; b++) {
-              const rawBullet = proj.bullets[b];
-              if (rawBullet && typeof rawBullet === 'string') {
-                const bText = rawBullet.toLowerCase().trim();
-                if (bText === origLower) {
-                  proj.bullets[b] = optimizedText;
-                  return; // Exact match found and applied
-                }
-                const score = getWordOverlap(origLower, bText);
-                if (score > bestMatch.score) {
-                  bestMatch = { section: 'projects', index: p, bulletIndex: b, score };
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // If semantic match is strong enough (> 3 overlapping words), replace it
-      if (bestMatch.score >= 3) {
-        if (bestMatch.section === 'experience') {
-          if (draft.experience[bestMatch.index] && draft.experience[bestMatch.index].bullets) {
-            draft.experience[bestMatch.index].bullets[bestMatch.bulletIndex] = optimizedText;
-          }
-        } else {
-          if (draft.projects[bestMatch.index] && draft.projects[bestMatch.index].bullets) {
-            draft.projects[bestMatch.index].bullets[bestMatch.bulletIndex] = optimizedText;
-          }
-        }
-        return;
-      }
-
-      // Fallback: Just append to the first experience if exists
-      if (Array.isArray(draft.experience) && draft.experience.length > 0) {
-        if (draft.experience[0]) {
-          if (!Array.isArray(draft.experience[0].bullets)) {
-            draft.experience[0].bullets = [];
-          }
-          draft.experience[0].bullets.push(optimizedText);
-        }
+      for (const proj of draft.projects || []) {
+        if (replaceInBullets(proj.bullets)) return;
       }
     });
   };
@@ -579,6 +515,14 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
                 
                 {expandedSection === 'projects' && (
                   <div className="p-4 border-t border-white/5 space-y-4 bg-black/30">
+                    {editorState.content.projects.length === 0 && (
+                      <div className="flex flex-col items-center justify-center py-10 px-4 text-center rounded-xl border border-dashed border-white/10 bg-white/[0.01]">
+                        <p className="text-sm font-bold text-gray-300">No projects detected</p>
+                        <p className="text-[11px] text-gray-500 mt-1.5 max-w-xs">
+                          Projects from your resume will appear here. Add one manually if needed.
+                        </p>
+                      </div>
+                    )}
                     {editorState.content.projects.map((proj, projIdx) => (
                       <div key={proj.id} className="border border-white/5 rounded-xl p-4 bg-black/40 space-y-3 relative group">
                         <button 
@@ -1262,7 +1206,7 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
                 </p>
                 
                 <div className="bg-black/60 p-4 rounded-xl border border-white/5 mb-4 text-xs leading-relaxed text-gray-300 font-sans text-justify">
-                  {analysis.optimization?.summary_rewrite?.optimized || analysis.optimization?.summaryRewrite?.optimized || "No summary rewrite optimizations available."}
+                  {getOptimizedSummaryText() || "No summary rewrite optimizations available."}
                 </div>
 
                 {analysis.optimization?.summary_rewrite?.recruiter_impact && (
@@ -1273,7 +1217,7 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
                 
                 <button 
                   onClick={applyAISummary}
-                  disabled={!(analysis.optimization?.summary_rewrite?.optimized || analysis.optimization?.summaryRewrite?.optimized)}
+                  disabled={!getOptimizedSummaryText()}
                   className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
                   <Wand2 className="w-3.5 h-3.5" />
@@ -1294,7 +1238,7 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
                 {Array.isArray(analysis.optimization?.bullet_optimizations) && analysis.optimization.bullet_optimizations.length > 0 ? (
                   <div className="space-y-3.5">
                     {analysis.optimization.bullet_optimizations.map((b: any, i: number) => {
-                      const isApplied = isBulletOptimized(b.optimized);
+                      const isApplied = isBulletOptimized(b.original, b.optimized);
                       
                       return (
                         <div key={i} className="border border-white/10 rounded-2xl bg-[#121212] overflow-hidden flex flex-col">

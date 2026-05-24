@@ -14,6 +14,8 @@ export interface IAnalysis extends Document {
   fallbackUsed: boolean;
   aiParseStatus: string;
   moduleSources: any;
+  targetRole?: string;
+  suggested_projects?: any[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +40,8 @@ const AnalysisSchema: Schema = new Schema(
   fallbackUsed: { type: Boolean, default: true },
   aiParseStatus: { type: String, default: 'unknown' },
   moduleSources: { type: Schema.Types.Mixed },
+  targetRole: { type: String, default: "" },
+  suggested_projects: { type: [Schema.Types.Mixed], default: [] },
   },
   {
     timestamps: true,

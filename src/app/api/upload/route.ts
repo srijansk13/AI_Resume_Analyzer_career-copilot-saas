@@ -75,6 +75,11 @@ function isCacheStaleOrIncomplete(analysis: any, text: string): { incomplete: bo
       return { incomplete: true, reason: "Missing experience details in cache, but 'Experience' heading exists in resume text" };
     }
 
+    // Suggested portfolio projects must be present on cached analyses (field added after initial launch)
+    if (!Array.isArray(analysis.suggested_projects) || analysis.suggested_projects.length === 0) {
+      return { incomplete: true, reason: "Missing suggested_projects in cached analysis" };
+    }
+
     return { incomplete: false, reason: "" };
   } catch (error) {
     console.error('[Cache] Error inside isCacheStaleOrIncomplete:', error);
@@ -103,6 +108,7 @@ export async function POST(req: Request) {
     let file: File | null = null;
     let jd: string | undefined = undefined;
     let forceReanalyze = queryForce;
+    let targetRole: string | undefined = undefined;
 
     // Read request body/formData safely
     const contentType = req.headers.get('content-type') || '';
@@ -111,6 +117,7 @@ export async function POST(req: Request) {
         const formData = await req.formData();
         file = formData.get('resume') as File | null;
         jd = formData.get('jd') as string | undefined;
+        targetRole = formData.get('targetRole') as string | undefined;
         if (formData.get('forceReanalyze') === 'true' || formData.get('forceRegenerate') === 'true') {
           forceReanalyze = true;
         }
@@ -124,6 +131,7 @@ export async function POST(req: Request) {
       try {
         const body = await req.json();
         jd = body.jd;
+        targetRole = body.targetRole;
         if (body.forceReanalyze === true || body.forceRegenerate === true) {
           forceReanalyze = true;
         }
@@ -329,7 +337,7 @@ export async function POST(req: Request) {
       let analysisResult;
       let isFallback = false;
       try {
-        analysisResult = await runFullAnalysis(text, jd);
+        analysisResult = await runFullAnalysis(text, jd, targetRole);
         console.log('[AI] Successfully generated analysis payload');
       } catch (e) {
         console.log('[AI] Orchestrator failed completely, using total fallback bundle');
@@ -381,6 +389,8 @@ export async function POST(req: Request) {
         fallbackUsed: result.fallbackUsed ?? true,
         aiParseStatus: result.aiParseStatus || 'unknown',
         moduleSources: result.moduleSources || {},
+        targetRole: targetRole || '',
+        suggested_projects: Array.isArray(result.suggested_projects) ? result.suggested_projects : [],
       });
       analysisId = newAnalysis._id;
 

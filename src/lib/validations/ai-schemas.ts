@@ -150,6 +150,17 @@ export const CoreExtractionSchema = z.object({
   tools: z.array(z.string()).default([])
 });
 
+// Suggested Projects Schema
+export const SuggestedProjectSchema = z.object({
+  title: z.string().default("Suggested Project"),
+  why_it_helps: z.string().default("Helps bridge critical gaps."),
+  skills_covered: z.array(z.string()).default([]),
+  suggested_stack: z.array(z.string()).default([]),
+  resume_impact: z.string().default("High resume impact."),
+  portfolio_value: z.string().default("Strong portfolio signal for recruiters."),
+  difficulty_level: z.enum(["Beginner", "Intermediate", "Advanced"]).default("Intermediate"),
+});
+
 // Master schema for single Gemini prompt architecture
 export const MasterAnalysisSchema = z.object({
   parsedData: CoreExtractionSchema.partial().optional(),
@@ -159,4 +170,5 @@ export const MasterAnalysisSchema = z.object({
   keywords: KeywordEngineSchema.partial().optional(),
   wow: WowEngineSchema.partial().optional(),
   optimization: OptimizationEngineSchema.partial().optional(),
+  suggested_projects: z.array(SuggestedProjectSchema).default([]).optional(),
 }).partial();

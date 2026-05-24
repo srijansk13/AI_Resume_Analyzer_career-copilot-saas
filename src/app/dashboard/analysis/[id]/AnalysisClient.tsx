@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { 
   LayoutDashboard, Sparkles, Briefcase, User, 
   Compass, MessageSquare, Download, Command as CmdIcon, Bot, Menu, X,
-  RefreshCw, Loader2
+  RefreshCw, Loader2, Target
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CommandPalette } from '@/components/dashboard/workspace/CommandPalette';
@@ -64,23 +64,36 @@ const LOADING_MESSAGES = [
   'Finalizing report...',
 ];
 
+const TARGET_ROLES = [
+  'Frontend Developer',
+  'Full Stack Developer',
+  'Backend Developer',
+  'Data Analyst',
+  'ML Engineer',
+  'Product Manager',
+  'UI/UX Designer'
+];
+
 export default function AnalysisClient({ analysis, resume }: { analysis: any, resume: any }) {
   const [mounted, setMounted] = useState(false);
   const [activeModule, setActiveModule] = useState('overview');
   const [cmdOpen, setCmdOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [selectedRole, setSelectedRole] = useState(analysis?.targetRole || 'Full Stack Developer');
   
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [loadingTextIndex, setLoadingTextIndex] = useState(0);
   const refreshLockRef = useRef<boolean>(false);
 
-  const handleRefresh = async () => {
+  const handleRefresh = async (roleOverride?: string) => {
     if (refreshing || refreshLockRef.current) return;
     refreshLockRef.current = true;
     setRefreshing(true);
     setLoadingTextIndex(0);
+
+    const targetRoleToUse = roleOverride || selectedRole;
 
     const interval = setInterval(() => {
       setLoadingTextIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
@@ -97,6 +110,7 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
         body: JSON.stringify({
           resumeId: resume._id || resume.id,
           forceReanalyze: true,
+          targetRole: targetRoleToUse,
         }),
       });
 
@@ -292,8 +306,29 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
               </h1>
             </div>
             <div className="flex space-x-3 hidden md:flex items-center">
+              {/* Target Role Dropdown */}
+              <div className="flex items-center space-x-2 bg-slate-900/60 border border-white/5 rounded-full px-4 py-2 hover:border-white/10 transition-all">
+                <Target className="w-3.5 h-3.5 text-indigo-400" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Targeting:</span>
+                <select
+                  value={selectedRole}
+                  onChange={(e) => {
+                    const newRole = e.target.value;
+                    setSelectedRole(newRole);
+                    handleRefresh(newRole);
+                  }}
+                  className="bg-transparent text-xs text-white font-bold focus:outline-none cursor-pointer pr-1"
+                >
+                  {TARGET_ROLES.map(role => (
+                    <option key={role} value={role} className="bg-slate-950 text-white font-semibold">
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <Button 
-                onClick={handleRefresh}
+                onClick={() => handleRefresh()}
                 disabled={refreshing}
                 variant="outline"
                 className="border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 disabled:opacity-50 rounded-full"
@@ -438,7 +473,7 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
 
                 {/* 3. Refresh AI Analysis */}
                 <button
-                  onClick={handleRefresh}
+                  onClick={() => handleRefresh()}
                   disabled={refreshing}
                   className="group p-5 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-emerald-500/30 rounded-2xl text-left transition-all duration-300 flex flex-col justify-between h-40 shadow-xl hover:shadow-[0_0_25px_-5px_rgba(16,185,129,0.15)] disabled:opacity-50 relative overflow-hidden text-ellipsis"
                 >
