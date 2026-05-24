@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { 
   LayoutDashboard, Sparkles, Briefcase, User, 
   Compass, MessageSquare, Download, Command as CmdIcon, Bot, Menu, X,
-  RefreshCw, Loader2, Target
+  RefreshCw, Loader2, Target, HelpCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CommandPalette } from '@/components/dashboard/workspace/CommandPalette';
@@ -86,6 +86,13 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
   const [refreshing, setRefreshing] = useState(false);
   const [loadingTextIndex, setLoadingTextIndex] = useState(0);
   const refreshLockRef = useRef<boolean>(false);
+  const [analysisGuideOpen, setAnalysisGuideOpen] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('dismissedAnalysisGuide') === '1') {
+      setAnalysisGuideOpen(false);
+    }
+  }, []);
 
   const handleRefresh = async (roleOverride?: string) => {
     if (refreshing || refreshLockRef.current) return;
@@ -225,6 +232,32 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
           </div>
         </div>
 
+        {analysisGuideOpen && (
+          <div className="mx-4 mt-4 p-3 rounded-xl border border-blue-500/15 bg-blue-500/5 relative">
+            <button
+              type="button"
+              onClick={() => {
+                setAnalysisGuideOpen(false);
+                localStorage.setItem('dismissedAnalysisGuide', '1');
+              }}
+              className="absolute top-2 right-2 p-1 rounded-lg text-gray-500 hover:text-white hover:bg-white/5"
+              aria-label="Dismiss guide"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+            <p className="text-[10px] font-black uppercase tracking-wider text-blue-300 flex items-center gap-1.5 mb-2">
+              <HelpCircle className="w-3.5 h-3.5" /> How to use this analysis
+            </p>
+            <ol className="text-[11px] text-gray-400 space-y-1 list-decimal list-inside pr-4 leading-relaxed">
+              <li>Review your ATS score in Overview</li>
+              <li>Check missing skills in Skills &amp; Keywords</li>
+              <li>Open Optimization for rewrites</li>
+              <li>Edit your resume live in the editor</li>
+              <li>Re-analyze after major changes</li>
+            </ol>
+          </div>
+        )}
+
         <div className="p-6 pb-2">
           <h2 className="text-xs uppercase tracking-widest text-gray-500 font-bold mb-4">Intelligence Modules</h2>
           <nav className="space-y-1">
@@ -359,6 +392,31 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
               </Button>
             </div>
           </div>
+
+          {analysisGuideOpen && (
+            <div className="md:hidden p-4 rounded-2xl border border-blue-500/15 bg-blue-500/5 relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setAnalysisGuideOpen(false);
+                  localStorage.setItem('dismissedAnalysisGuide', '1');
+                }}
+                className="absolute top-3 right-3 p-1 rounded-lg text-gray-500 hover:text-white"
+                aria-label="Dismiss guide"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <p className="text-[10px] font-black uppercase tracking-wider text-blue-300 flex items-center gap-1.5 mb-2">
+                <HelpCircle className="w-3.5 h-3.5" /> How to use this analysis
+              </p>
+              <ol className="text-xs text-gray-400 space-y-1 list-decimal list-inside pr-6">
+                <li>Review ATS score → Overview</li>
+                <li>Skills gaps → Skills &amp; Keywords</li>
+                <li>Rewrites → Optimization</li>
+                <li>Live edits → Edit Resume</li>
+              </ol>
+            </div>
+          )}
 
           {/* Dynamic Module Area */}
           <div className="relative min-h-[500px]">

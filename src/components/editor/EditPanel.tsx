@@ -1,13 +1,19 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { EditorState, ResumeExperience, ResumeEducation, ResumeProject } from '@/models/EditorState';
 import { IAnalysis } from '@/models/Analysis';
 import { calculateATSScore } from '@/utils/atsScorer';
+import {
+  applyBulletOptimizationToContent,
+  normalizeBulletText,
+} from '@/lib/editor/applyBulletOptimization';
+import { toast } from 'sonner';
 import { 
   ChevronDown, ChevronRight, Wand2, Plus, Trash2, CheckCircle2, 
   ArrowRight, Sparkles, PlusCircle, Check, Briefcase, GraduationCap, 
-  FolderGit2, Award, User, FileText, PlusSquare, AlertCircle, LayoutTemplate, Trophy, BookOpen, Users
+  FolderGit2, Award, User, FileText, PlusSquare, AlertCircle, LayoutTemplate, Trophy, BookOpen, Users,
+  Copy, X, HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,9 +23,22 @@ interface EditPanelProps {
   analysis: IAnalysis;
 }
 
+const EDITOR_GUIDE_KEY = 'dismissedEditorGuide';
+
 export default function EditPanel({ editorState, setEditorState, analysis }: EditPanelProps) {
   const [activeTab, setActiveTab] = useState<'content' | 'theme' | 'ai'>('content');
   const [expandedSection, setExpandedSection] = useState<string>('personalInfo');
+  const [editorGuideOpen, setEditorGuideOpen] = useState(true);
+  const [applyingBulletKey, setApplyingBulletKey] = useState<string | null>(null);
+  const [bulletApplyFailed, setBulletApplyFailed] = useState<Record<number, boolean>>({});
+  const [summaryApplying, setSummaryApplying] = useState(false);
+  const [summaryApplied, setSummaryApplied] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem(EDITOR_GUIDE_KEY) === '1') {
+      setEditorGuideOpen(false);
+    }
+  }, []);
 
   // Original AI Score from analysis
   const originalAIScore = useMemo(() => {
@@ -52,9 +71,6 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
     });
   };
 
-  const normalizeBulletText = (text: string) =>
-    text.toLowerCase().trim().replace(/\s+/g, ' ');
-
   const getOptimizedSummaryText = (): string => {
     const rewrite = analysis.optimization?.summary_rewrite;
     if (typeof rewrite === 'string' && rewrite.trim()) return rewrite.trim();
@@ -67,15 +83,34 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
     return '';
   };
 
-  // AI Helpers
-  const applyAISummary = () => {
+  useEffect(() => {
     const aiSummary = getOptimizedSummaryText();
-    if (!aiSummary) return;
+    if (aiSummary && normalizeBulletText(editorState.content.summary || '') === normalizeBulletText(aiSummary)) {
+      setSummaryApplied(true);
+    }
+  }, [editorState.content.summary, analysis]);
+
+  const dismissEditorGuide = () => {
+    setEditorGuideOpen(false);
+    localStorage.setItem(EDITOR_GUIDE_KEY, '1');
+  };
+
+  // AI Helpers
+  const applyAISummary = async () => {
+    const aiSummary = getOptimizedSummaryText();
+    if (!aiSummary) {
+      toast.error('No AI summary rewrite available.');
+      return;
+    }
+    setSummaryApplying(true);
     updateContent((draft) => {
       draft.summary = aiSummary;
     });
     setActiveTab('content');
     setExpandedSection('summary');
+    setSummaryApplied(true);
+    setSummaryApplying(false);
+    toast.success('Summary updated — check the preview.');
   };
 
   const isBulletOptimized = (_originalText?: string, optimizedText?: string) => {
@@ -90,33 +125,35 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
     return hasOptimizedBullet(editorState.content.projects?.flatMap((p) => p.bullets || []));
   };
 
-  const applyBulletOptimization = (originalText?: string, optimizedText?: string) => {
-    if (!optimizedText || typeof optimizedText !== 'string') return;
-    const origNorm = originalText ? normalizeBulletText(originalText) : '';
-    const optNorm = normalizeBulletText(optimizedText);
+  const handleApplyBullet = async (index: number, originalText?: string, optimizedText?: string) => {
+    if (!optimizedText || typeof optimizedText !== 'string' || applyingBulletKey) return;
 
-    updateContent((draft) => {
-      const replaceInBullets = (bullets: string[] | undefined): boolean => {
-        if (!Array.isArray(bullets)) return false;
-        for (let i = 0; i < bullets.length; i++) {
-          const current = bullets[i];
-          if (typeof current !== 'string') continue;
-          const bNorm = normalizeBulletText(current);
-          if ((origNorm && bNorm === origNorm) || bNorm === optNorm) {
-            bullets[i] = optimizedText;
-            return true;
-          }
-        }
-        return false;
-      };
+    setApplyingBulletKey(`bullet-${index}`);
+    setBulletApplyFailed((prev) => ({ ...prev, [index]: false }));
 
-      for (const exp of draft.experience || []) {
-        if (replaceInBullets(exp.bullets)) return;
-      }
-      for (const proj of draft.projects || []) {
-        if (replaceInBullets(proj.bullets)) return;
-      }
-    });
+    const contentCopy = JSON.parse(JSON.stringify(editorState.content));
+    const matchResult = applyBulletOptimizationToContent(contentCopy, originalText, optimizedText);
+
+    if (matchResult !== 'none') {
+      setEditorState((prev) =>
+        prev ? { ...prev, content: contentCopy, lastSavedAt: Date.now() } : prev
+      );
+      toast.success('Bullet applied to your resume.');
+    } else {
+      setBulletApplyFailed((prev) => ({ ...prev, [index]: true }));
+      toast.error("Couldn't auto-match this bullet. Please copy it manually.");
+    }
+
+    setApplyingBulletKey(null);
+  };
+
+  const copyOptimizedBullet = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success('Optimized bullet copied.');
+    } catch {
+      toast.error('Copy failed — select and copy the text manually.');
+    }
   };
 
   const handleResetToAI = () => {
@@ -133,7 +170,7 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] text-white">
+    <div className="flex flex-col h-full min-h-0 bg-[#0a0a0a] text-white">
       {/* 1. TOP PREMIUM SCORE COMPARISON CARD */}
       <div className="p-4 border-b border-white/10 bg-gradient-to-b from-slate-900/40 to-transparent">
         <div className="bg-[#121212] border border-white/10 rounded-2xl p-4 relative overflow-hidden shadow-2xl">
@@ -232,7 +269,31 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+      {/* Collapsible editor quick steps */}
+      {editorGuideOpen && (
+        <div className="mx-4 mt-3 mb-0 p-3 rounded-xl border border-indigo-500/15 bg-indigo-500/5 relative shrink-0">
+          <button
+            type="button"
+            onClick={dismissEditorGuide}
+            className="absolute top-2 right-2 p-1 rounded-lg text-gray-500 hover:text-white hover:bg-white/5"
+            aria-label="Dismiss editor guide"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+          <p className="text-[10px] font-black uppercase tracking-wider text-indigo-300 flex items-center gap-1.5 mb-2">
+            <HelpCircle className="w-3.5 h-3.5" /> Quick steps
+          </p>
+          <ol className="text-[11px] text-gray-400 space-y-1 list-decimal list-inside pr-6 leading-relaxed">
+            <li>Review AI suggestions in the <span className="text-purple-300">AI Enhance</span> tab</li>
+            <li>Apply summary or bullet improvements</li>
+            <li>Edit content manually in <span className="text-gray-300">Content</span> if needed</li>
+            <li>Switch to Preview to check layout</li>
+            <li>Export or download when ready</li>
+          </ol>
+        </div>
+      )}
+
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-y-contain p-4 pb-[max(6rem,env(safe-area-inset-bottom))] custom-scrollbar">
         <AnimatePresence mode="wait">
           {activeTab === 'content' ? (
             <motion.div 
@@ -1187,10 +1248,10 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.15 }}
-              className="space-y-6 pb-20"
+              className="space-y-6 pb-8 min-h-0"
             >
               {/* Summary Enhancement */}
-              <div className="p-5 rounded-2xl border border-purple-500/20 bg-purple-500/5 relative overflow-hidden">
+              <div className="p-5 rounded-2xl border border-purple-500/20 bg-purple-500/5 relative">
                 <div className="absolute top-0 right-0 p-4 opacity-5"><Wand2 className="w-20 h-20 text-purple-400" /></div>
                 
                 <div className="flex justify-between items-center mb-3">
@@ -1217,12 +1278,17 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
                 
                 <button 
                   onClick={applyAISummary}
-                  disabled={!getOptimizedSummaryText()}
+                  disabled={!getOptimizedSummaryText() || summaryApplying}
                   className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
                   <Wand2 className="w-3.5 h-3.5" />
-                  Apply AI Rewrite to Summary
+                  {summaryApplying ? 'Applying…' : summaryApplied ? 'Re-apply AI Summary' : 'Apply AI Rewrite to Summary'}
                 </button>
+                {summaryApplied && (
+                  <p className="text-[10px] text-emerald-400 font-semibold text-center mt-2 flex items-center justify-center gap-1">
+                    <Check className="w-3 h-3" /> Summary applied — see Content tab & preview
+                  </p>
+                )}
               </div>
 
               {/* STAR-Method Bullet Enhancements */}
@@ -1239,9 +1305,11 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
                   <div className="space-y-3.5">
                     {analysis.optimization.bullet_optimizations.map((b: any, i: number) => {
                       const isApplied = isBulletOptimized(b.original, b.optimized);
+                      const isApplying = applyingBulletKey === `bullet-${i}`;
+                      const failed = bulletApplyFailed[i];
                       
                       return (
-                        <div key={i} className="border border-white/10 rounded-2xl bg-[#121212] overflow-hidden flex flex-col">
+                        <div key={i} className="border border-white/10 rounded-2xl bg-[#121212] flex flex-col shrink-0">
                           <div className="p-3.5 bg-red-500/5 border-b border-white/5">
                             <span className="text-[9px] font-bold text-red-400 uppercase tracking-widest block mb-1">Original wording</span>
                             <p className="text-xs text-gray-500 line-through decoration-red-500/30 leading-relaxed font-sans">{b.original}</p>
@@ -1256,7 +1324,13 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
                             </span>
                             <p className="text-xs text-gray-200 leading-relaxed font-sans text-justify mb-3">{b.optimized}</p>
                             
-                            <div className="flex justify-end pt-2 border-t border-white/5">
+                            <div className="flex flex-col gap-2 pt-2 border-t border-white/5">
+                              {failed && (
+                                <p className="text-[10px] text-amber-300/90 leading-relaxed">
+                                  Couldn&apos;t auto-match this bullet. Please copy it manually.
+                                </p>
+                              )}
+                              <div className="flex flex-wrap justify-end gap-2">
                               {isApplied ? (
                                 <div className="flex items-center gap-1 text-emerald-400 text-xs font-bold py-1.5 px-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 select-none">
                                   <Check className="w-3.5 h-3.5" />
@@ -1264,13 +1338,26 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
                                 </div>
                               ) : (
                                 <button 
-                                  onClick={() => applyBulletOptimization(b.original, b.optimized)}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-gray-200 text-black rounded-lg text-xs font-bold transition-all active:scale-[0.97]"
+                                  type="button"
+                                  onClick={() => handleApplyBullet(i, b.original, b.optimized)}
+                                  disabled={!!applyingBulletKey}
+                                  className="flex items-center gap-1.5 px-3 py-2 min-h-[36px] bg-white hover:bg-gray-200 text-black rounded-lg text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-50"
                                 >
                                   <Wand2 className="w-3.5 h-3.5" />
-                                  Apply to Resume
+                                  {isApplying ? 'Applying…' : 'Apply to Resume'}
                                 </button>
                               )}
+                              {(failed || !isApplied) && b.optimized && (
+                                <button
+                                  type="button"
+                                  onClick={() => copyOptimizedBullet(b.optimized)}
+                                  className="flex items-center gap-1.5 px-3 py-2 min-h-[36px] rounded-lg text-xs font-bold border border-white/15 text-gray-300 hover:bg-white/5"
+                                >
+                                  <Copy className="w-3.5 h-3.5" />
+                                  Copy optimized bullet
+                                </button>
+                              )}
+                              </div>
                             </div>
                           </div>
                         </div>

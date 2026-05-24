@@ -20,10 +20,11 @@ export default function EditorLayout({ editorState, setEditorState, analysis }: 
   const [activeTab, setActiveTab] = useState<'structure' | 'preview' | 'edit'>('preview');
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-[#030303] overflow-hidden text-white font-sans">
+    <div className="flex flex-col lg:flex-row h-[100dvh] bg-[#030303] overflow-hidden text-white font-sans">
       
-      {/* MOBILE & TABLET BOTTOM/TOP NAVIGATION SWITCHER (visible under lg viewport) */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#0a0a0f] border-b border-white/[0.06] shrink-0 z-20">
+      {/* MOBILE & TABLET NAV + TIP */}
+      <div className="lg:hidden shrink-0 z-20">
+      <div className="flex items-center justify-between px-4 py-3 bg-[#0a0a0f] border-b border-white/[0.06]">
         <Link 
           href="/dashboard" 
           className="flex items-center justify-center p-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white"
@@ -52,16 +53,19 @@ export default function EditorLayout({ editorState, setEditorState, analysis }: 
           </button>
         </div>
         
-        <div className="w-8 h-8" /> {/* Balance space spacer */}
+        <div className="w-8 h-8" />
+      </div>
+      <p className="px-4 py-2 text-[10px] text-gray-500 bg-[#08080c] border-b border-white/[0.04] leading-relaxed">
+        <span className="text-indigo-400 font-bold">Tip:</span> Use the tabs above to switch between Structure, Preview, and Edit. In Edit, open <span className="text-purple-300 font-semibold">AI Enhance</span> for suggestions.
+      </p>
       </div>
 
-      {/* -------------------- 3-PANEL INTERFACES -------------------- */}
-
+      <div className="flex flex-1 min-h-0 w-full overflow-hidden">
       {/* LEFT PANEL - Structure (visible on desktop, or when selected on mobile/tablet) */}
       <div 
         className={`${
           activeTab === 'structure' ? 'flex' : 'hidden'
-        } lg:flex flex-col w-full lg:w-64 border-r border-white/[0.06] bg-[#0a0a0f] overflow-y-auto h-full shrink-0`}
+        } lg:flex flex-col w-full lg:w-64 border-r border-white/[0.06] bg-[#0a0a0f] overflow-y-auto min-h-0 h-full shrink-0`}
       >
         <StructurePanel editorState={editorState} setEditorState={setEditorState} />
       </div>
@@ -70,7 +74,7 @@ export default function EditorLayout({ editorState, setEditorState, analysis }: 
       <div 
         className={`${
           activeTab === 'preview' ? 'flex' : 'hidden'
-        } lg:flex flex-1 flex-col bg-[#111115] overflow-hidden h-full relative`}
+        } lg:flex flex-1 flex-col bg-[#111115] overflow-hidden min-h-0 h-full relative`}
       >
         <LivePreviewPanel editorState={editorState} setEditorState={setEditorState} analysis={analysis} />
       </div>
@@ -79,13 +83,14 @@ export default function EditorLayout({ editorState, setEditorState, analysis }: 
       <div 
         className={`${
           activeTab === 'edit' ? 'flex' : 'hidden'
-        } lg:flex flex-col w-full lg:w-[420px] border-l border-white/[0.06] bg-[#0a0a0f] overflow-y-auto h-full shrink-0 relative`}
+        } lg:flex flex-col w-full lg:w-[420px] border-l border-white/[0.06] bg-[#0a0a0f] min-h-0 h-full overflow-hidden shrink-0 relative`}
       >
         <EditPanel 
           editorState={editorState} 
           setEditorState={setEditorState} 
           analysis={analysis} 
         />
+      </div>
       </div>
 
     </div>
