@@ -100,17 +100,20 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6 lg:p-12 w-full max-w-7xl mx-auto space-y-10">
+      {/* Redesigned AI Upload Dropzone */}
+      <div
+        id="upload-area-box"
+        className="w-full max-w-2xl mx-auto pb-12 border-b border-white/[0.03]"
+      >
+        <UploadArea />
+      </div>
+
       <DashboardOverviewClient 
         userName={user.name || "Srijan"}
         isNewUser={isNewUser}
         stats={stats}
         recentResumes={safeRecentResumes}
       />
-      
-      {/* Redesigned AI Upload Dropzone */}
-      <div className="w-full max-w-2xl mx-auto pt-4 pb-12 border-t border-white/[0.03]">
-        <UploadArea />
-      </div>
     </div>
   );
 }

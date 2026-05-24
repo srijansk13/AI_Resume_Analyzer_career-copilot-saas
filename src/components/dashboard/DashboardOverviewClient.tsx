@@ -249,15 +249,6 @@ export default function DashboardOverviewClient({
         </div>
       </motion.div>
 
-      {/* Main Upload Box container hook */}
-      <motion.div 
-        id="upload-area-box"
-        variants={itemVariants}
-        className="w-full max-w-4xl mx-auto"
-      >
-        {/* We will inject dynamic visual updates around standard UploadArea element */}
-      </motion.div>
-
       {/* Dynamic Sub-State Feed section */}
       <motion.div 
         variants={itemVariants}

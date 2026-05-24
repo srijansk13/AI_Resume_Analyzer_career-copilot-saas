@@ -499,6 +499,8 @@ export default function LandingPage() {
       <SampleAnalysisPreview />
       <ProblemSolutionSection />
 
+      <LiveEditorSection />
+
       {/* FEATURES */}
       <section id="features" className="py-28 relative z-10 scroll-mt-12">
         <div className="container px-4 md:px-6 mx-auto max-w-7xl">
@@ -677,7 +679,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <LiveEditorSection />
       <RoleAwareSection />
 
       {/* BEFORE / AFTER */}
