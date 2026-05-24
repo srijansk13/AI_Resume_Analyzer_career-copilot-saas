@@ -297,3 +297,72 @@ Built as a scalable full-stack SaaS application using:
 ```bash
 git clone YOUR_REPO_LINK
 cd AI_Resume_Analyzer
+Install Dependencies
+npm install
+Configure Environment Variables
+
+Create:
+
+.env.local
+
+Add:
+
+MONGODB_URI=
+JWT_SECRET=
+EMAIL_USER=
+EMAIL_PASS=
+GEMINI_API_KEYS=
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+Run Development Server
+npm run dev
+Production Build
+npm run build
+🌍 Deployment
+
+Deployed using:
+
+Vercel
+MongoDB Atlas
+
+Production optimized with:
+
+cloud database infrastructure
+secure environment variables
+AI orchestration runtime
+production-safe middleware
+📈 Why This Project Matters
+
+Career Copilot represents the combination of:
+
+full-stack engineering
+AI workflow orchestration
+SaaS architecture
+recruiter-focused product design
+premium UI/UX craftsmanship
+cloud deployment engineering
+authentication systems
+real-world resume intelligence workflows
+
+The goal was not just to build another resume checker —
+but to create a complete AI-powered resume improvement experience.
+
+👨‍💻 Developer
+Srijan Kumar
+
+Full Stack Developer • AI Product Builder • SaaS Engineer
+
+Focused on building:
+
+AI-powered applications
+premium SaaS experiences
+intelligent productivity systems
+scalable full-stack products
+⭐ Support The Project
+
+If you found this project interesting or useful:
+
+Give this repository a ⭐
+Share feedback
+Connect with me on LinkedIn
+
+Built with obsessive attention to product quality, user experience, and engineering detail.
