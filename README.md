@@ -1,8 +1,9 @@
 # 🚀 Career Copilot — AI Resume Analyzer & Career Intelligence Platform
 
-> A production-grade AI-powered resume intelligence platform that analyzes resumes like a recruiter, improves ATS compatibility, optimizes bullet points using AI, and provides a live resume editing workflow — all inside a premium SaaS experience.
+> A production-grade AI-powered resume intelligence platform that analyzes resumes like a recruiter, improves ATS compatibility, rewrites weak bullet points, suggests missing skills, recommends portfolio projects, and provides a live resume editing workflow — all inside a premium SaaS experience.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=for-the-badge&logo=mongodb)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38BDF8?style=for-the-badge&logo=tailwind-css)
@@ -13,7 +14,7 @@
 
 # 🌐 Live Demo
 
-### 🔗 Production Deployment
+## 🔗 Production Deployment
 
 Dropping it soon....
 
@@ -21,51 +22,61 @@ Dropping it soon....
 
 # ✨ About The Project
 
-Most ATS tools only give users a score.
+Most ATS tools only tell users one thing:
+
+> “Your ATS score is 67%.”
 
 But they rarely explain:
+
 - what is actually wrong
 - which skills are missing
 - why the score is low
+- how recruiters may evaluate the resume
 - how to improve the resume effectively
 
-Career Copilot was built to solve that problem.
+Career Copilot was built to solve that exact problem.
 
-Instead of simply analyzing resumes, the platform provides:
-- recruiter-style AI feedback
-- ATS optimization guidance
-- role-aware recommendations
-- STAR-method bullet improvements
-- live resume editing
-- suggested projects to build
-- resume reanalysis workflows
+Instead of simply checking resumes, Career Copilot helps users:
 
-all inside one unified AI-powered experience.
+- understand resume weaknesses
+- improve ATS compatibility
+- optimize bullet points
+- identify missing skills
+- receive recruiter-style feedback
+- edit resumes live
+- reanalyze resumes after improvements
+- discover projects to build for stronger positioning
+
+all inside one unified AI-powered workflow.
 
 ---
 
-# 🧠 Core Features
+# 🚀 Core Features
 
 ---
 
 ## ✅ AI Resume Analysis Engine
 
-Analyze resumes using AI-powered recruiter-style evaluation.
+Analyze resumes using recruiter-style AI evaluation.
 
 ### Includes:
+
 - ATS compatibility scoring
 - Resume structure analysis
-- Keyword density evaluation
 - Semantic resume analysis
+- Keyword density analysis
+- Formatting evaluation
 - Readability checks
-- Action verb optimization
-- Role-specific insights
+- Recruiter-focused insights
+- Role alignment analysis
+
+The platform explains what needs improvement instead of only giving a score.
 
 ---
 
 ## ✅ Role-Aware Resume Optimization
 
-Users can target specific roles such as:
+Users can select target roles such as:
 
 - Frontend Developer
 - Full Stack Developer
@@ -76,110 +87,161 @@ Users can target specific roles such as:
 - UI/UX Designer
 
 The AI dynamically adapts:
-- missing skill analysis
+
+- missing skill recommendations
 - ATS suggestions
 - recruiter feedback
 - project recommendations
-- optimization guidance
+- optimization strategy
+- career guidance
 
-based on the selected career role.
+based on the selected target role.
 
 ---
 
 ## ✅ Live Resume Editor
 
-One of the platform’s biggest differentiators.
+One of the platform’s strongest differentiators.
 
-Instead of forcing users to switch between:
-- ATS checkers
-- resume editors
-- optimization tools
+Most users currently follow workflows like:
 
-Career Copilot provides a fully interactive live editing workflow.
+```text
+ATS Checker → Resume Editor → Upload Again → Repeat
+```
 
-### Features:
-- real-time resume editing
-- AI-enhanced bullet rewriting
-- live preview synchronization
-- summary rewriting
-- instant resume updates
-- intelligent apply-to-resume actions
+Career Copilot eliminates that friction by providing:
+
+- live resume editing
+- AI enhancement workflows
+- one-click optimization apply
+- synchronized resume preview
+- real-time editing experience
+- resume improvement inside one workspace
+
+Users can improve resumes directly instead of constantly switching tools.
 
 ---
 
-## ✅ AI Bullet Optimization
+## ✅ AI Bullet Point Optimization
 
-Transforms weak bullet points into stronger recruiter-grade achievements using STAR methodology.
-
-### Example
+Weak bullet points are transformed into stronger recruiter-grade achievements using STAR-style optimization.
 
 ### Before
+
 > Worked on dashboard UI and fixed bugs.
 
 ### After
+
 > Improved dashboard performance by 42% and reduced regression issues through optimized component rendering and automated testing workflows.
+
+The goal is to make resumes:
+
+- more measurable
+- more impactful
+- more recruiter-friendly
+- more ATS optimized
+
+---
+
+## ✅ Skills & Keywords Intelligence
+
+The platform intelligently organizes extracted skills into clean recruiter-readable groups:
+
+- Core Technical Skills
+- Frameworks & Tools
+- ATS Keywords
+- Missing Market Skills
+- Leadership & Collaboration
+
+Instead of overwhelming users with noisy AI-generated terms, the platform prioritizes practical recruiter-recognized technologies and skills.
 
 ---
 
 ## ✅ Suggested Projects To Build
 
-The platform intelligently recommends portfolio-worthy projects based on:
+Career Copilot also recommends portfolio-worthy projects users can build based on:
+
 - resume gaps
 - missing skills
 - target role
-
-Helping users understand:
-> “What should I build next to strengthen my resume?”
+- current experience level
 
 Each recommendation includes:
+
 - project title
 - why it helps
 - skills covered
-- suggested stack
+- suggested tech stack
 - resume impact
 - portfolio value
+- difficulty level
+
+Helping users answer:
+
+> “What should I build next to improve my profile?”
 
 ---
 
-## ✅ AI-Powered Resume Reanalysis
+## ✅ Recruiter-Style Feedback
+
+The platform simulates recruiter evaluation workflows by identifying:
+
+- strengths
+- weaknesses
+- missing signals
+- role alignment gaps
+- resume improvement opportunities
+
+The feedback is designed to feel practical and actionable instead of generic.
+
+---
+
+## ✅ AI Resume Reanalysis
 
 Users can continuously improve resumes through:
-- reanalysis workflows
-- live optimization
-- updated ATS scoring
-- refined recruiter feedback
 
-without restarting the entire process.
+- reanalysis workflows
+- updated ATS scoring
+- refreshed recruiter insights
+- improved optimization suggestions
+- role-specific feedback regeneration
+
+without restarting the process.
 
 ---
 
-## ✅ Career Intelligence Modules
+# 🧠 Career Intelligence Modules
 
-### Includes:
+Career Copilot includes:
+
 - ATS Analysis
-- Skills & Keyword Extraction
 - Resume Optimization
+- Skills & Keyword Extraction
 - Recruiter Feedback
-- Career Roadmaps
 - Suggested Projects
-- Mock Interview Preparation
+- Career Roadmaps
 - Job Match Analysis
+- Mock Interview Preparation
 
 ---
 
 # 🎨 Premium SaaS Experience
 
-Designed with a modern production-grade SaaS aesthetic.
+The platform was designed with a modern production-grade SaaS experience.
 
 ### UI/UX Highlights
-- Fully responsive design
-- Dark premium interface
-- Glassmorphism effects
+
+- Premium dark interface
+- Glassmorphism UI
 - Framer Motion animations
-- Interactive loading systems
-- AI scanning animations
+- Responsive layouts
 - Mobile-optimized workflows
-- Guided onboarding experience
+- AI scanning animations
+- Guided onboarding helpers
+- Interactive dashboard experience
+- Smooth transitions and loaders
+
+The goal was to make the platform feel like a real AI SaaS product — not a basic resume checker.
 
 ---
 
@@ -189,66 +251,113 @@ Designed with a modern production-grade SaaS aesthetic.
 
 ## 🔄 Multi-Key AI Reliability System
 
-Production-grade AI orchestration layer featuring:
+Career Copilot includes a production-grade AI reliability layer featuring:
 
-- round-robin API key rotation
-- intelligent fallback recovery
+- multi-key rotation
+- round-robin API orchestration
 - cooldown handling
-- provider-safe logging
-- resilient parsing workflows
+- timeout recovery
 - structured JSON recovery
+- resilient parsing workflows
+- provider-safe logging
 
-Designed to maximize AI reliability during high usage.
+This was designed to maintain stable AI analysis workflows under repeated usage.
+
+---
+
+## 🧩 Structured AI Parsing Pipeline
+
+The platform includes robust AI response handling:
+
+- structured JSON extraction
+- validation against schemas
+- fallback handling
+- response normalization
+- project integrity validation
+- hallucination prevention
+
+This helps maintain trust and output reliability.
 
 ---
 
 ## 🔐 Secure Authentication System
 
-### Includes:
+Authentication features include:
+
 - Email OTP authentication
 - JWT session handling
 - Protected dashboard routes
-- Secure environment variables
-- Middleware-protected workflows
+- Middleware-based route protection
+- Environment-secured credentials
 
 ---
 
 ## 📊 ATS Intelligence System
 
-Custom ATS analysis engine evaluating:
+The custom ATS engine evaluates:
 
 - formatting quality
-- keyword density
-- resume readability
+- keyword relevance
+- readability
 - section structure
 - semantic alignment
-- recruiter relevance
+- recruiter readability
+- action verb quality
 
 ---
 
-## 🧩 Production SaaS Architecture
+## 🌍 Production Deployment
 
-Built as a scalable full-stack SaaS application using:
+The application is deployed using:
 
-### Frontend
+- Vercel
+- MongoDB Atlas
+
+Production optimized with:
+
+- secure environment variables
+- cloud database infrastructure
+- AI orchestration runtime
+- protected API workflows
+- scalable deployment architecture
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+
 - Next.js 16
 - React 19
 - TypeScript
 - Tailwind CSS
 - Framer Motion
+- Lucide React
 
-### Backend
+---
+
+## Backend
+
 - Next.js API Routes
 - MongoDB Atlas
 - Mongoose
+- JWT Authentication
+- OTP Email Authentication
 
-### AI Infrastructure
-- Gemini API orchestration
-- structured extraction pipelines
-- semantic resume analysis
-- AI optimization workflows
+---
 
-### Deployment
+## AI Infrastructure
+
+- AI Resume Analysis Pipeline
+- Multi-Key Rotation Engine
+- Structured AI Parsing
+- Fallback Recovery System
+- Role-Aware Prompt Orchestration
+
+---
+
+## Deployment
+
 - Vercel
 - MongoDB Atlas Cloud
 
@@ -260,31 +369,45 @@ Built as a scalable full-stack SaaS application using:
 
 ## 🖥️ Landing Experience
 
-- AI-powered resume scanning animation
-- ATS visualization
-- live intelligence preview
-- recruiter-style workflow explanation
+- Live resume scanning animation
+- ATS score visualization
+- AI-powered workflow preview
+- Product walkthrough sections
+- Role-aware analysis explanation
+- Live editor showcase
 
 ---
 
 ## 📊 Dashboard Experience
 
-- instant resume upload
-- role-aware analysis
-- ATS scoring
-- optimization insights
-- suggested projects
-- career intelligence modules
+- Upload-first dashboard flow
+- Target role selection
+- Optional job description support
+- Resume intelligence workspace
+- ATS analysis entry point
+- Guided onboarding helpers
+
+---
+
+## 📈 Analysis Workspace
+
+- ATS score breakdown
+- Missing skills analysis
+- Recruiter-style feedback
+- Resume optimization suggestions
+- Suggested projects section
+- Career intelligence modules
 
 ---
 
 ## ✍️ Live Editor Experience
 
 - AI enhancement workflows
-- bullet rewriting
-- live resume preview
-- one-click optimization apply
-- mobile-friendly editing
+- Bullet optimization apply system
+- Summary rewriting
+- Live synchronized preview
+- Mobile-friendly editing
+- One-click resume improvements
 
 ---
 
@@ -292,77 +415,124 @@ Built as a scalable full-stack SaaS application using:
 
 ---
 
-## Clone Repository
+## 1. Clone Repository
 
 ```bash
 git clone YOUR_REPO_LINK
 cd AI_Resume_Analyzer
-Install Dependencies
+```
+
+---
+
+## 2. Install Dependencies
+
+```bash
 npm install
-Configure Environment Variables
+```
+
+---
+
+## 3. Configure Environment Variables
 
 Create:
 
+```bash
 .env.local
+```
 
 Add:
 
+```env
 MONGODB_URI=
 JWT_SECRET=
 EMAIL_USER=
 EMAIL_PASS=
 GEMINI_API_KEYS=
+GEMINI_MODELS=gemini-2.5-flash
+GEMINI_KEY_COOLDOWN_MS=90000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-Run Development Server
+```
+
+> Never commit real environment variables to GitHub.
+
+---
+
+## 4. Run Development Server
+
+```bash
 npm run dev
-Production Build
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+---
+
+## 5. Production Build
+
+```bash
 npm run build
-🌍 Deployment
+```
 
-Deployed using:
+---
 
-Vercel
-MongoDB Atlas
+# 🌍 Deployment
 
-Production optimized with:
+Career Copilot is deployed using:
 
-cloud database infrastructure
-secure environment variables
-AI orchestration runtime
-production-safe middleware
-📈 Why This Project Matters
+- Vercel
+- MongoDB Atlas
+
+Production environment variables are configured securely inside the Vercel dashboard.
+
+---
+
+# 📈 Why This Project Matters
 
 Career Copilot represents the combination of:
 
-full-stack engineering
-AI workflow orchestration
-SaaS architecture
-recruiter-focused product design
-premium UI/UX craftsmanship
-cloud deployment engineering
-authentication systems
-real-world resume intelligence workflows
+- Full-stack SaaS engineering
+- AI workflow orchestration
+- Production deployment workflows
+- Resume intelligence systems
+- Authentication systems
+- Cloud infrastructure integration
+- Modern UI/UX engineering
+- Product-focused development
+- Mobile-first optimization
+- Real-world SaaS architecture
 
-The goal was not just to build another resume checker —
-but to create a complete AI-powered resume improvement experience.
+The goal was not to build another ATS checker.
 
-👨‍💻 Developer
-Srijan Kumar
+The goal was to build a complete AI-powered resume improvement experience.
+
+---
+
+# 👨‍💻 Developer
+
+## Srijan Kumar
 
 Full Stack Developer • AI Product Builder • SaaS Engineer
 
 Focused on building:
 
-AI-powered applications
-premium SaaS experiences
-intelligent productivity systems
-scalable full-stack products
-⭐ Support The Project
+- AI-powered products
+- premium SaaS experiences
+- intelligent productivity systems
+- scalable full-stack applications
 
-If you found this project interesting or useful:
+---
 
-Give this repository a ⭐
-Share feedback
-Connect with me on LinkedIn
+# ⭐ Support The Project
 
-Built with obsessive attention to product quality, user experience, and engineering detail.
+If you found this project interesting:
+
+- Give this repository a ⭐
+- Try the live product
+- Share feedback
+- Connect with me on LinkedIn
+
+Built with deep focus on product quality, user experience, engineering detail, and real-world usability.
