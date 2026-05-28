@@ -83,3 +83,7 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Internal AI workflow / agent config (local only)
+CLAUDE.md
+AGENTS.md
