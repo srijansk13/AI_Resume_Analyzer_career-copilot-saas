@@ -16,7 +16,7 @@
 
 ## 🔗 Production Deployment
 
-Dropping it soon....
+https://careercopilotapp.vercel.app/
 
 ---
 
