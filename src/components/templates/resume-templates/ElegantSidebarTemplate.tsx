@@ -40,8 +40,8 @@ export default function ElegantSidebarTemplate({ editorState }: TemplateProps) {
 
   const nameStyle = {
     fontFamily: theme.headingFont || theme.fontFamily || 'Outfit, sans-serif',
-    fontSize: '22pt',
-    fontWeight: 'bold',
+    fontSize: '20pt',
+    fontWeight: 800,
     color: theme.primaryColor || '#0f172a',
     lineHeight: '1.2',
   };
@@ -327,7 +327,7 @@ export default function ElegantSidebarTemplate({ editorState }: TemplateProps) {
         {/* Profile Info */}
         <div style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '16px', marginBottom: '8px' }}>
           <div style={{ wordBreak: 'break-word' }}>
-            <h1 style={{ ...nameStyle, color: '#ffffff', fontSize: '18pt' }}>{personalInfo.fullName}</h1>
+            <h1 style={{ ...nameStyle, color: '#ffffff', fontSize: '20pt' }}>{personalInfo.fullName}</h1>
             {personalInfo.title && <h2 style={{ ...roleStyle, color: theme.accentColor || '#3b82f6', fontSize: '9pt' }}>{personalInfo.title}</h2>}
           </div>
         </div>

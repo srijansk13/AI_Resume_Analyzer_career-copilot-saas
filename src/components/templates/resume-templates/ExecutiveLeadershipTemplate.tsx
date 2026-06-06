@@ -34,7 +34,7 @@ export default function ExecutiveLeadershipTemplate({ editorState }: TemplatePro
   const nameStyle = {
     fontFamily: theme.headingFont || 'Georgia, "Times New Roman", serif',
     fontSize: '26pt',
-    fontWeight: 'normal',
+    fontWeight: "bold",
     color: '#0f172a',
     letterSpacing: '0.08em',
     textTransform: 'uppercase' as const,

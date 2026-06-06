@@ -43,7 +43,7 @@ export default function ModernDeveloperTemplate({ editorState }: TemplateProps) 
   const nameStyle = {
     fontFamily: theme.headingFont || theme.fontFamily || 'Inter, sans-serif',
     fontSize: '22pt',
-    fontWeight: 'bold',
+    fontWeight: 800,
     color: theme.primaryColor || '#0f172a',
     lineHeight: '1.2',
   };
@@ -337,7 +337,7 @@ export default function ModernDeveloperTemplate({ editorState }: TemplateProps) 
         {/* Profile Info */}
         <div>
           <div style={{ wordBreak: 'break-word' }}>
-            <h1 style={{ ...nameStyle, fontSize: '18pt' }}>{personalInfo.fullName}</h1>
+            <h1 style={{ ...nameStyle, fontSize: '22pt' }}>{personalInfo.fullName}</h1>
             {personalInfo.title && <h2 style={{ ...roleStyle, fontSize: '9.5pt' }}>{personalInfo.title}</h2>}
           </div>
         </div>

@@ -102,7 +102,7 @@ export async function POST(req: Request) {
     }
 
     const url = new URL(req.url);
-    let queryForce = url.searchParams.get('forceReanalyze') === 'true' || url.searchParams.get('force') === 'true';
+    const queryForce = url.searchParams.get('forceReanalyze') === 'true' || url.searchParams.get('force') === 'true';
     let resumeIdParam = url.searchParams.get('resumeId');
 
     let file: File | null = null;
@@ -339,7 +339,15 @@ export async function POST(req: Request) {
       try {
         analysisResult = await runFullAnalysis(text, jd, targetRole);
         console.log('[AI] Successfully generated analysis payload');
-      } catch (e) {
+      } catch (e: any) {
+        if (e && (e.message === "ALL_KEYS_EXHAUSTED" || e.message.includes("cooling down"))) {
+          console.warn("[AI] All Gemini keys exhausted. Returning graceful retry response.");
+          return NextResponse.json({
+            success: false,
+            retryAfter: 30,
+            error: "High demand at the moment. Please retry shortly."
+          }, { status: 503 });
+        }
         console.log('[AI] Orchestrator failed completely, using total fallback bundle');
         analysisResult = buildCompleteFallbackAnalysis();
         isFallback = true;

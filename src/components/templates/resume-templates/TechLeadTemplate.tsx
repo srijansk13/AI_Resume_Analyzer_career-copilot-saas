@@ -305,7 +305,7 @@ export default function TechLeadTemplate({ editorState }: TemplateProps) {
       {/* LEFT SIDEBAR (contact, skills, tools, certifications, links) */}
       <aside style={leftSidebarStyle}>
         <div>
-          <h1 style={{ fontSize: '16pt', fontWeight: 850, color: '#0f172a', lineHeight: '1.2' }}>{personalInfo.fullName}</h1>
+          <h1 style={{ fontSize: '22pt', fontWeight: 850, color: '#0f172a', lineHeight: '1.2' }}>{personalInfo.fullName}</h1>
           {personalInfo.title && (
             <h2 style={{ fontSize: '9pt', fontWeight: 700, color: theme.accentColor || '#0284c7', marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               {personalInfo.title}

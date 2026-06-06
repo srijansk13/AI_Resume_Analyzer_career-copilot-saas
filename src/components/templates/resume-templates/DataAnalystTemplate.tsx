@@ -328,7 +328,7 @@ export default function DataAnalystTemplate({ editorState }: TemplateProps) {
       {/* LEFT SIDEBAR (contact, skills, tools, certifications, links) */}
       <aside style={leftSidebarStyle}>
         <div>
-          <h1 style={{ fontSize: '16pt', fontWeight: 800, color: '#0f172a', lineHeight: '1.2' }}>{personalInfo.fullName}</h1>
+          <h1 style={{ fontSize: '22pt', fontWeight: 800, color: '#0f172a', lineHeight: '1.2' }}>{personalInfo.fullName}</h1>
           {personalInfo.title && (
             <h2 style={{ fontSize: '9pt', fontWeight: 600, color: theme.accentColor || '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>
               {personalInfo.title}

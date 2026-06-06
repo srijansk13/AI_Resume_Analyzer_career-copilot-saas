@@ -30,9 +30,9 @@ export default function CorporateStandardTemplate({ editorState }: TemplateProps
   };
 
   const nameStyle = {
-    fontFamily: theme.headingFont || theme.fontFamily || 'Georgia, "Times New Roman", serif',
+    fontFamily: theme.headingFont || 'Georgia, "Times New Roman", serif',
     fontSize: '24pt',
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: theme.primaryColor || '#0f172a',
     letterSpacing: '0.02em',
     textTransform: 'uppercase' as const,
@@ -50,7 +50,7 @@ export default function CorporateStandardTemplate({ editorState }: TemplateProps
   };
 
   const sectionHeaderStyle = {
-    fontFamily: theme.headingFont || theme.fontFamily || 'Georgia, "Times New Roman", serif',
+    fontFamily: theme.headingFont || 'Georgia, "Times New Roman", serif',
     fontSize: '11pt',
     fontWeight: 'bold',
     color: theme.primaryColor || '#0f172a',

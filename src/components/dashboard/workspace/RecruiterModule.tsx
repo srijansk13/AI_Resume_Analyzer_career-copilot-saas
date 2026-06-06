@@ -5,8 +5,96 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { UserCircle2, CheckCircle2, ShieldAlert, Building2, Rocket, ArrowRight, MessageSquare, Bot } from 'lucide-react';
 import { BentoCard } from '../bento/BentoCard';
 
+function getStartupFounderData(analysis: any, faang: any) {
+  const pd = analysis?.parsedData || {};
+  const projects = pd.projects || [];
+  
+  let baseProb = 65;
+  const hp = (faang.hiring_probability || '').toLowerCase();
+  if (hp.includes('high')) baseProb = 88;
+  else if (hp.includes('medium') || hp.includes('modest')) baseProb = 58;
+  else if (hp.includes('low')) baseProb = 28;
+
+  let startupScore = baseProb;
+  if (projects.length >= 2) startupScore += 10;
+  else if (projects.length === 0) startupScore -= 15;
+
+  const builderKeywords = ['react', 'next', 'node', 'aws', 'docker', 'vercel', 'firebase', 'supabase', 'tailwind', 'typescript', 'python', 'ai', 'llm'];
+  const hasBuilder = (pd.skills || []).some((s: string) => builderKeywords.includes(s.toLowerCase()));
+  if (hasBuilder) startupScore += 5;
+
+  startupScore = Math.min(98, Math.max(15, startupScore));
+
+  const hiring_probability = startupScore >= 80 ? "Strong Founder Fit" : startupScore >= 55 ? "Potential Builder" : "High Mentorship Risk";
+
+  const strengths: string[] = [];
+  (faang.top_strengths || []).forEach((str: string) => {
+    const s = str.toLowerCase();
+    if (s.includes('experience') || s.includes('tenure')) {
+      strengths.push("Shows grit and ability to stick with hard engineering problems.");
+    } else if (s.includes('lead') || s.includes('manage') || s.includes('mentor')) {
+      strengths.push("Product ownership mindset; can run end-to-end without hand-holding.");
+    } else if (s.includes('scale') || s.includes('architecture')) {
+      strengths.push("Thinks about scale early; won't build unmaintainable MVP spaghetti.");
+    } else {
+      strengths.push(str.replace(/Enterprise/ig, 'Startup').replace(/Corporate/ig, 'Agile').replace(/process/ig, 'execution'));
+    }
+  });
+
+  if (projects.length >= 2 && !strengths.some(s => s.includes('Builder'))) {
+    strengths.push("High builder signal: proven ability to ship side projects from zero to one.");
+  }
+  if (strengths.length === 0) {
+    strengths.push("Has basic technical foundation to contribute to MVP.");
+  }
+
+  const concerns: any[] = [];
+  (faang.hiring_manager_concerns || []).forEach((c: any) => {
+    const concernStr = (c.concern || '').toLowerCase();
+    let startupConcern = c.concern;
+    let fixStrategy = c.explainability_node?.fix_strategy || 'Show more initiative.';
+
+    if (concernStr.includes('impact') || concernStr.includes('metric')) {
+      startupConcern = "Lacks focus on user growth and product metrics. Startups need product-minded engineers, not just ticket-takers.";
+      fixStrategy = "Highlight user adoption, DAU/MAU, or time-to-market speed instead of just code contributions.";
+    } else if (concernStr.includes('tenure') || concernStr.includes('jump')) {
+      startupConcern = "Flight risk. Startups are a grind; I need to know you won't quit when things get chaotic.";
+      fixStrategy = "Frame past short stints as contract work, pivot-driven, or high-intensity sprints.";
+    } else if (concernStr.includes('tech') || concernStr.includes('skill')) {
+      startupConcern = "Risk of needing too much technical mentoring. I don't have time to hold your hand.";
+      fixStrategy = "Demonstrate ability to learn fast. Highlight self-taught modern stacks or weekend hacks.";
+    } else {
+      startupConcern = "May struggle to adapt to extreme ambiguity and fast-paced shipping cycles.";
+      fixStrategy = "Emphasize extreme ownership, quick MVPs, and cross-functional flexibility in your summary.";
+    }
+
+    concerns.push({ concern: startupConcern, explainability_node: { fix_strategy: fixStrategy } });
+  });
+
+  if (projects.length === 0 && concerns.length === 0) {
+    concerns.push({
+      concern: "Zero public builder signals. Looks like a 9-to-5 corporate dev who only codes when told to.",
+      explainability_node: { fix_strategy: "Ship an MVP or weekend project ASAP. Include a GitHub link and live demo URL." }
+    });
+  }
+  
+  if (concerns.length > 0 && concerns.length === (faang.hiring_manager_concerns || []).length) {
+    if (concerns[0] && concerns[0].concern === (faang.hiring_manager_concerns || [])[0]?.concern) {
+      concerns[0].concern = "Need more signal on product execution and extreme ownership.";
+      concerns[0].explainability_node.fix_strategy = "Reframe your bullets to show how you took initiatives from 0 to 1.";
+    }
+  }
+
+  return {
+    hiring_probability,
+    probScore: startupScore,
+    top_strengths: Array.from(new Set(strengths)).slice(0, 4),
+    hiring_manager_concerns: concerns.slice(0, 3)
+  };
+}
+
 export default function RecruiterModule({ analysis }: { analysis: any }) {
-  const recruiter = analysis?.recruiter || {};
+  const faang = analysis?.recruiter || {};
   const [mode, setMode] = useState<'faang' | 'startup'>('faang');
 
   // Probability parser
@@ -18,7 +106,17 @@ export default function RecruiterModule({ analysis }: { analysis: any }) {
     if (p.includes('low')) return 28;
     return 65;
   };
-  const probScore = getProbabilityScore(recruiter.hiring_probability);
+
+  const startupData = getStartupFounderData(analysis, faang);
+  
+  const currentData = mode === 'faang' ? {
+    hiring_probability: faang.hiring_probability || "Highly Competitive",
+    probScore: getProbabilityScore(faang.hiring_probability),
+    top_strengths: faang.top_strengths || [],
+    hiring_manager_concerns: faang.hiring_manager_concerns || []
+  } : startupData;
+  
+  const probScore = currentData.probScore;
 
   return (
     <motion.div 
@@ -47,7 +145,7 @@ export default function RecruiterModule({ analysis }: { analysis: any }) {
         <div className="flex items-center justify-between sm:justify-end gap-6 px-4">
           <div className="text-right">
             <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-1">Target Fit Status</p>
-            <p className="text-sm font-extrabold text-white">{recruiter.hiring_probability || "Highly Competitive"}</p>
+            <p className="text-sm font-extrabold text-white">{currentData.hiring_probability}</p>
           </div>
           <div className="w-18 h-18 relative flex items-center justify-center shrink-0">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 48 48">
@@ -100,8 +198,8 @@ export default function RecruiterModule({ analysis }: { analysis: any }) {
             </h3>
             <div className="space-y-3">
               <AnimatePresence mode="popLayout">
-                {Array.isArray(recruiter.top_strengths) && recruiter.top_strengths.length > 0 ? (
-                  recruiter.top_strengths.map((str: string, i: number) => (
+                {Array.isArray(currentData.top_strengths) && currentData.top_strengths.length > 0 ? (
+                  currentData.top_strengths.map((str: string, i: number) => (
                     <motion.div 
                       key={i} 
                       initial={{ opacity: 0, x: -10 }}
@@ -127,8 +225,8 @@ export default function RecruiterModule({ analysis }: { analysis: any }) {
             </h3>
             <div className="space-y-3.5">
               <AnimatePresence mode="popLayout">
-                {Array.isArray(recruiter.hiring_manager_concerns) && recruiter.hiring_manager_concerns.length > 0 ? (
-                  recruiter.hiring_manager_concerns.map((c: any, i: number) => (
+                {Array.isArray(currentData.hiring_manager_concerns) && currentData.hiring_manager_concerns.length > 0 ? (
+                  currentData.hiring_manager_concerns.map((c: any, i: number) => (
                     <motion.div 
                       key={i} 
                       initial={{ opacity: 0, x: 10 }}

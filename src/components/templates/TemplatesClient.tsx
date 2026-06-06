@@ -22,6 +22,14 @@ import AIEngineerTemplate from './resume-templates/AIEngineerTemplate';
 import ProductManagerTemplate from './resume-templates/ProductManagerTemplate';
 import ElegantSidebarTemplate from './resume-templates/ElegantSidebarTemplate';
 import CreativeProfessionalTemplate from './resume-templates/CreativeProfessionalTemplate';
+import JakesResumeTemplate from './resume-templates/JakesResumeTemplate';
+import DeedyResumeTemplate from './resume-templates/DeedyResumeTemplate';
+import AltaCVTemplate from './resume-templates/AltaCVTemplate';
+import ModernCVTemplate from './resume-templates/ModernCVTemplate';
+import AwesomeCVTemplate from './resume-templates/AwesomeCVTemplate';
+import AcademicCVTemplate from './resume-templates/AcademicCVTemplate';
+import FAANGResumeTemplate from './resume-templates/FAANGResumeTemplate';
+import IITPlacementTemplate from './resume-templates/IITPlacementTemplate';
 
 const mockEditorState: EditorState = {
   analysisId: 'mock-1',
@@ -111,7 +119,13 @@ const TEMPLATES_LIST = [
   { id: 'ai-engineer', component: AIEngineerTemplate, name: 'AI Engineer', category: 'Developer', cols: 'Two Column', description: 'Forward-looking layout highlighting ML models, frameworks, and research.' },
   { id: 'product-manager', component: ProductManagerTemplate, name: 'Product Manager', category: 'Management', cols: 'Two Column', description: 'Focuses on product lifecycle, user impact, and cross-functional leadership.' },
   { id: 'elegant-sidebar', component: ElegantSidebarTemplate, name: 'Elegant Sidebar', category: 'Modern', cols: 'Two Column', description: 'A timeless layout with a dedicated sidebar for skills and contact info.' },
-  { id: 'creative-professional', component: CreativeProfessionalTemplate, name: 'Creative Professional', category: 'Designer', cols: 'Two Column', description: 'Expressive and unique layout for marketing and design roles.' }
+  { id: 'creative-professional', component: CreativeProfessionalTemplate, name: 'Creative Professional', category: 'Designer', cols: 'Two Column', description: 'Expressive and unique layout for marketing and design roles.' },
+  { id: 'jakes-resume', component: JakesResumeTemplate, name: "Jake's Resume Inspired", category: 'ATS Safe', cols: 'One Column', description: 'Clean ATS format with minimal styling and compact spacing, ideal for software engineers.' },
+  { id: 'deedy-resume', component: DeedyResumeTemplate, name: 'Deedy Resume Inspired', category: 'Developer', cols: 'One Column', description: 'Technical resume style, dense but readable, adapted for ATS.' },
+  { id: 'altacv-resume', component: AltaCVTemplate, name: 'AltaCV Inspired', category: 'Academic', cols: 'One Column', description: 'Modern academic style with an elegant structure.' },
+  { id: 'awesomecv-resume', component: AwesomeCVTemplate, name: 'Awesome CV Inspired', category: 'Executive', cols: 'One Column', description: 'Premium executive appearance with modern visual hierarchy.' },
+  { id: 'faang-resume', component: FAANGResumeTemplate, name: 'Clean FAANG Resume', category: 'ATS Safe', cols: 'One Column', description: 'Extremely ATS-friendly, minimal styling, strong achievement focus.' },
+  { id: 'iit-placement', component: IITPlacementTemplate, name: 'IIT / NIT Placement Style', category: 'Academic', cols: 'One Column', description: 'Campus placement optimized, skills-first structure, project-heavy layout.' }
 ];
 
 export function TemplatesClient() {

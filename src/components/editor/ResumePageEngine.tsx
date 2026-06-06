@@ -25,9 +25,9 @@ export default function ResumePageEngine({ editorState, TemplateComponent }: Res
   }, [editorState, TemplateComponent]);
 
   return (
-    <div className="flex flex-col items-center gap-8 w-full py-4 select-none">
+    <div className="flex flex-col items-center gap-8 w-full py-4 select-none print:!p-0 print:!m-0 print:!gap-0 print:!items-start print:!block">
       {/* Page Info Header for UX */}
-      <div className="w-[794px] px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex justify-between items-center font-mono">
+      <div className="print:hidden w-[794px] px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold flex justify-between items-center font-mono">
         <span>PREVIEW MODE: SAFE HIGH-PERFORMANCE RENDERER</span>
         <span>A4 STANDARD WIDTH (794PX)</span>
       </div>
@@ -41,76 +41,50 @@ export default function ResumePageEngine({ editorState, TemplateComponent }: Res
           position: 'relative',
           overflow: 'visible',
           color: 'black',
-          background: 'white'
-        }}
+          background: 'white',
+          // Inject custom properties
+          '--theme-primary': editorState.theme.primaryColor || '#0f172a',
+          '--theme-accent': editorState.theme.accentColor || '#3b82f6',
+          '--theme-text': editorState.theme.textColor || '#334155',
+        } as React.CSSProperties}
       >
+        <style dangerouslySetInnerHTML={{ __html: `
+          /* Typography Overrides */
+          ${editorState.theme.fontFamily ? `
+            .printable-page, .resume-print-root { font-family: ${editorState.theme.fontFamily} !important; }
+            .printable-page *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) { font-family: inherit !important; }
+          ` : ''}
+          ${editorState.theme.headingFont ? `
+            .printable-page h1, .printable-page h2, .printable-page h3, .printable-page h4, .printable-page h5, .printable-page h6,
+            .printable-page h1 *, .printable-page h2 *, .printable-page h3 *, .printable-page h4 *, .printable-page h5 *, .printable-page h6 * { 
+              font-family: ${editorState.theme.headingFont} !important; 
+            }
+          ` : ''}
+          ${editorState.theme.fontSize ? `
+            .printable-page, .resume-print-root { font-size: ${editorState.theme.fontSize} !important; }
+          ` : ''}
+          
+          /* Color Overrides for explicit hardcoded template colors */
+          .printable-page .text-\\[\\#3498db\\], .printable-page .text-\\[\\#0055aa\\], .printable-page .text-\\[\\#1b3a4b\\], .printable-page .text-\\[\\#2c7da0\\] {
+             color: var(--theme-accent) !important;
+          }
+          .printable-page .bg-\\[\\#3498db\\], .printable-page .bg-\\[\\#0055aa\\], .printable-page .bg-\\[\\#1b3a4b\\], .printable-page .bg-\\[\\#2c7da0\\] {
+             background-color: var(--theme-accent) !important;
+          }
+          .printable-page .border-\\[\\#3498db\\], .printable-page .border-\\[\\#0055aa\\], .printable-page .border-\\[\\#1b3a4b\\], .printable-page .border-\\[\\#2c7da0\\] {
+             border-color: var(--theme-accent) !important;
+          }
+          .printable-page .text-\\[\\#dc3522\\] {
+             color: var(--theme-primary) !important;
+          }
+
+          /* General spacing */
+          ${editorState.theme.sectionSpacing ? `
+            .printable-page section, .printable-page .resume-section { margin-bottom: ${editorState.theme.sectionSpacing} !important; }
+          ` : ''}
+        `}} />
         <TemplateComponent editorState={editorState} />
 
-        {/* Subtle, beautiful dashed Page Break indicator at exactly y = 1123px */}
-        <div 
-          className="print:hidden"
-          style={{
-            position: 'absolute',
-            top: '1123px',
-            left: '0',
-            right: '0',
-            borderTop: '2px dashed #cbd5e1',
-            pointerEvents: 'none',
-            display: 'block',
-            zIndex: 50
-          }}
-        >
-          <span 
-            style={{
-              position: 'absolute',
-              right: '16px',
-              top: '-10px',
-              background: '#f8fafc',
-              color: '#64748b',
-              fontSize: '7.5pt',
-              fontWeight: 'bold',
-              padding: '2px 8px',
-              borderRadius: '4px',
-              border: '1px solid #e2e8f0',
-              fontFamily: 'monospace'
-            }}
-          >
-            A4 PAGE 1 ENDS HERE
-          </span>
-        </div>
-
-        {/* Subtle, beautiful dashed Page Break indicator at exactly y = 2246px */}
-        <div 
-          className="print:hidden"
-          style={{
-            position: 'absolute',
-            top: '2246px',
-            left: '0',
-            right: '0',
-            borderTop: '2px dashed #cbd5e1',
-            pointerEvents: 'none',
-            display: 'block',
-            zIndex: 50
-          }}
-        >
-          <span 
-            style={{
-              position: 'absolute',
-              right: '16px',
-              top: '-10px',
-              background: '#f8fafc',
-              color: '#64748b',
-              fontSize: '7.5pt',
-              fontWeight: 'bold',
-              padding: '2px 8px',
-              borderRadius: '4px',
-              border: '1px solid #e2e8f0',
-              fontFamily: 'monospace'
-            }}
-          >
-            A4 PAGE 2 ENDS HERE
-          </span>
-        </div>
       </div>
     </div>
   );

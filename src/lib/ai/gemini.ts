@@ -5,6 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 const MODELS = [
   'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
   'gemini-2.0-flash',
   'gemini-2.0-flash-001',
   'gemini-2.0-flash-lite',
@@ -29,6 +30,7 @@ export function getModelsToUse(): string[] {
 interface KeyRecord {
   key: string;
   cooldownUntil: number; // timestamp in ms
+  status: 'available' | 'cooldown' | 'failed' | 'exhausted';
 }
 
 let keyRecords: KeyRecord[] | null = null;
@@ -77,7 +79,8 @@ export function getGeminiKeys(): KeyRecord[] {
 
   keyRecords = parsedKeys.map(key => ({
     key,
-    cooldownUntil: 0
+    cooldownUntil: 0,
+    status: 'available' as const
   }));
 
   console.log(`[Gemini Keys] Loaded key count: ${keyRecords.length}`);
@@ -111,6 +114,15 @@ export async function selectRoundRobinKey(
   }
 
   const now = Date.now();
+
+  // Update status dynamically
+  for (let offset = 0; offset < total; offset++) {
+    if (records[offset].cooldownUntil > now) {
+      records[offset].status = 'cooldown';
+    } else if (records[offset].status === 'cooldown' || records[offset].status === 'exhausted') {
+      records[offset].status = 'available';
+    }
+  }
   
   // Start searching from the key index AFTER lastUsedKeyIndex
   const startSearchIndex = (lastUsedKeyIndex + 1) % total;
@@ -175,6 +187,9 @@ export async function selectRoundRobinKey(
   }
 
   // 3. Fully exhausted for this specific request
+  for (let offset = 0; offset < total; offset++) {
+    records[offset].status = 'exhausted';
+  }
   return null;
 }
 
@@ -186,6 +201,7 @@ function setKeyCooldown(record: KeyRecord, index: number, jobContext = '[AI]') {
   const total = records.length;
   const cooldownMs = Number(process.env.GEMINI_KEY_COOLDOWN_MS) || 90000;
   record.cooldownUntil = Date.now() + cooldownMs;
+  record.status = 'cooldown';
   console.log(`${jobContext} [Gemini Key] Key index ${index + 1}/${total} cooling down until: ${new Date(record.cooldownUntil).toISOString()}`);
 }
 
@@ -235,13 +251,13 @@ function isKeyRotatableError(err: any): boolean {
   const msg = (err.message || '').toLowerCase();
   const status = err.status || (err.response && err.response.status);
   
-  // 429 represents Resource Exhausted / Rate Limit; 503 represents Service Overloaded / Temporary Unavailable
-  if (status === 429 || status === 503) {
+  // 429 represents Resource Exhausted / Rate Limit
+  if (status === 429) {
     return true;
   }
 
   // 401 represents invalid credentials (unauthorized) - do NOT rotate for 401 in production
-  if (status === 401) {
+  if (status === 401 || status === 503) {
     return false;
   }
   
@@ -251,11 +267,14 @@ function isKeyRotatableError(err: any): boolean {
     'resource_exhausted',
     'exhausted',
     '429',
-    '503',
-    'overloaded',
-    'unavailable',
     'rate_limit'
   ];
+
+  // Exclude 503 and high demand explicitly to prevent key cooldowns
+  const excludePhrases = ['503', 'high demand', 'overloaded', 'service unavailable'];
+  if (excludePhrases.some(phrase => msg.includes(phrase))) {
+    return false;
+  }
   
   return targetPhrases.some(phrase => msg.includes(phrase));
 }
@@ -388,7 +407,7 @@ export function extractJSON(text: string): {
   }
 
   // 1. Try clean JSON.parse of full substring first (No aggressive repair if it's already pristine)
-  let cleanText = text.substring(firstBrace, lastBrace + 1).trim();
+  const cleanText = text.substring(firstBrace, lastBrace + 1).trim();
   try {
     const parsed = JSON.parse(cleanText);
     console.log(`[AI JSON] Clean parse success: true`);
@@ -396,7 +415,7 @@ export function extractJSON(text: string): {
   } catch (e) {
     // Normal clean parse failed, start progressive loose cleanups
     try {
-      let repairCleanText = cleanText
+      const repairCleanText = cleanText
         .replace(/```(?:json)?/gi, '')
         .replace(/,\s*([}\]])/g, '$1')
         .replace(/[\x00-\x1F\x7F-\x9F]/g, "")
@@ -406,7 +425,7 @@ export function extractJSON(text: string): {
       return { data: parsed, raw };
     } catch (cleanErr) {
       try {
-        let newlineRepaired = cleanText
+        const newlineRepaired = cleanText
           .replace(/```(?:json)?/gi, '')
           .replace(/,\s*([}\]])/g, '$1')
           .replace(/[\x00-\x1F\x7F-\x9F]/g, "")
@@ -456,13 +475,19 @@ export async function callGeminiWaterfall(
   
   const baseModels = getModelsToUse();
   // Reorder queue dynamically prioritizing preferredModel if present
-  const modelsToTry = preferredModel && baseModels.includes(preferredModel)
+  let modelsToTry = preferredModel && baseModels.includes(preferredModel)
     ? [preferredModel, ...baseModels.filter(m => m !== preferredModel)]
     : baseModels;
+
+  modelsToTry = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
 
   console.log(`${ctx} [Gemini Model] Effective models: ${modelsToTry.join(', ')}`);
 
   for (const modelName of modelsToTry) {
+    if (modelName === 'gemini-2.5-flash') {
+      console.log(`[Gemini Model] Trying primary model: ${modelName}`);
+    }
+
     // If this model is globally skipped for the current session, bypass it immediately
     if (unavailableModels.has(modelName)) {
       console.log(`${ctx} [Gemini Model] Skipping unavailable model: ${modelName}`);
@@ -470,7 +495,9 @@ export async function callGeminiWaterfall(
     }
 
     let timeoutMs = 30000;
-    if (modelName.includes('lite')) {
+    if (modelName === 'gemini-2.5-flash-lite') {
+      timeoutMs = 60000;
+    } else if (modelName.includes('lite')) {
       timeoutMs = 25000;
     } else if (modelName === 'gemini-2.5-flash') {
       timeoutMs = 45000;
@@ -532,6 +559,20 @@ export async function callGeminiWaterfall(
       } catch (error: any) {
         console.warn(`${ctx} [AI] Model ${modelName} failed with key index ${index + 1}/${total}: ${error.message}`);
         
+        const msg = (error.message || '').toLowerCase();
+        const status = error.status || (error.response && error.response.status);
+        const isHighDemand = status === 503 || msg.includes('503') || msg.includes('high demand') || msg.includes('overloaded') || msg.includes('service unavailable');
+        
+        if (isHighDemand) {
+          if (modelName === 'gemini-2.5-flash') {
+            console.log(`[Gemini Model] Primary model high demand detected`);
+            console.log(`[Gemini Model] Switching to fallback model: gemini-2.5-flash-lite`);
+          } else {
+            console.log(`${ctx} [Gemini Model] Model ${modelName} high demand detected`);
+          }
+          break; // Stop rotating keys for this model, go to next model in the waterfall
+        }
+
         const isEligible = isCooldownEligibleError(error);
         if (isEligible) {
           setKeyCooldown(record, index, ctx);
@@ -556,6 +597,6 @@ export async function callGeminiWaterfall(
     }
   }
 
-  console.log(`${ctx} [Gemini Final] All usable Gemini models failed: ${modelsToTry.join(', ')}`);
-  throw new Error("ALL_GEMINI_MODELS_FAILED");
+  console.log(`${ctx} [Gemini Final] All usable Gemini models failed or keys exhausted: ${modelsToTry.join(', ')}`);
+  throw new Error("ALL_KEYS_EXHAUSTED");
 }

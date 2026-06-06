@@ -30,11 +30,11 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
   };
 
   const nameStyle = {
-    fontSize: '20pt',
-    fontWeight: 'normal',
+    fontSize: '24pt',
+    fontWeight: "bold",
     color: '#000000',
-    letterSpacing: '0.05em',
     textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
     margin: '0 0 4px 0',
   };
 

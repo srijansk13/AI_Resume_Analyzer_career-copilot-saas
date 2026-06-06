@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { EditorState, ResumeExperience, ResumeEducation, ResumeProject } from '@/models/EditorState';
 import { IAnalysis } from '@/models/Analysis';
 import { calculateATSScore } from '@/utils/atsScorer';
+import { calculateEditorATSScore, EditorAITrackingFlags } from '@/utils/editorAtsScorer';
 import {
   applyBulletOptimizationToContent,
   normalizeBulletText,
@@ -24,6 +25,40 @@ interface EditPanelProps {
 }
 
 const EDITOR_GUIDE_KEY = 'dismissedEditorGuide';
+
+// Custom hook for smooth numerical transitions
+function useAnimatedScore(targetScore: number, duration: number = 500) {
+  const [displayedScore, setDisplayedScore] = useState(targetScore);
+
+  useEffect(() => {
+    if (displayedScore === targetScore) return;
+    
+    let startTimestamp: number | null = null;
+    const startScore = displayedScore;
+    const difference = targetScore - startScore;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      
+      // Use easeOutQuad for smooth deceleration
+      const easeProgress = 1 - (1 - progress) * (1 - progress);
+      const currentVal = Math.round(startScore + (difference * easeProgress));
+      
+      setDisplayedScore(currentVal);
+      
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      } else {
+        setDisplayedScore(targetScore);
+      }
+    };
+
+    window.requestAnimationFrame(step);
+  }, [targetScore, duration, displayedScore]);
+
+  return displayedScore;
+}
 
 export default function EditPanel({ editorState, setEditorState, analysis }: EditPanelProps) {
   const [activeTab, setActiveTab] = useState<'content' | 'theme' | 'ai'>('content');
@@ -50,10 +85,39 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
         : 75;
   }, [analysis]);
 
-  // 1. Calculate live ATS Score in real-time
+  // Track which AI improvements the user has explicitly accepted
+  const [aiFlags, setAiFlags] = useState<EditorAITrackingFlags>({
+    aiSummaryApplied: false,
+    aiBulletsApplied: false,
+    aiKeywordsApplied: false,
+    aiSkillsApplied: false,
+    aiProjectsApplied: false,
+  });
+
+  // Track the most recent score jump to show a popup indicator
+  const [lastScoreJump, setLastScoreJump] = useState<{ jump: number; timestamp: number } | null>(null);
+  const [prevScoreRef, setPrevScoreRef] = useState<number | null>(null);
+
+  // 1. Calculate live ATS Score using the dedicated Editor Engine
   const liveATSBreakdown = useMemo(() => {
-    return calculateATSScore(editorState.content, analysis.keywords, originalAIScore);
-  }, [editorState.content, analysis.keywords, originalAIScore]);
+    return calculateEditorATSScore(editorState.content, analysis.keywords, aiFlags, editorState.templateId, originalAIScore);
+  }, [editorState.content, analysis.keywords, aiFlags, editorState.templateId, originalAIScore]);
+
+  // Smoothly animate the target score
+  const animatedScore = useAnimatedScore(liveATSBreakdown.score);
+
+  // Detect sudden jumps in score from AI applications to show indicator
+  useEffect(() => {
+    if (prevScoreRef !== null) {
+      const diff = liveATSBreakdown.score - prevScoreRef;
+      if (diff >= 2) {
+        setLastScoreJump({ jump: diff, timestamp: Date.now() });
+        // Hide after 3 seconds
+        setTimeout(() => setLastScoreJump(null), 3000);
+      }
+    }
+    setPrevScoreRef(liveATSBreakdown.score);
+  }, [liveATSBreakdown.score, prevScoreRef]);
 
   const scoreDifference = liveATSBreakdown.score - originalAIScore;
 
@@ -106,6 +170,7 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
     updateContent((draft) => {
       draft.summary = aiSummary;
     });
+    setAiFlags(prev => ({ ...prev, aiSummaryApplied: true }));
     setActiveTab('content');
     setExpandedSection('summary');
     setSummaryApplied(true);
@@ -138,6 +203,7 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
       setEditorState((prev) =>
         prev ? { ...prev, content: contentCopy, lastSavedAt: Date.now() } : prev
       );
+      setAiFlags(prev => ({ ...prev, aiBulletsApplied: true }));
       toast.success('Bullet applied to your resume.');
     } else {
       setBulletApplyFailed((prev) => ({ ...prev, [index]: true }));
@@ -208,10 +274,25 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
             {/* Live Score */}
             <div className="text-center bg-indigo-500/5 border border-indigo-500/20 rounded-xl px-4 py-2 flex-1 ml-3 relative">
               <div className="text-xs text-indigo-400 font-bold uppercase">Live Editor</div>
-              <div className="text-2xl font-black tracking-tight text-white">{liveATSBreakdown.score}%</div>
+              <div className="text-2xl font-black tracking-tight text-white">{animatedScore}%</div>
               
               {/* Green active dot */}
               <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+
+              {/* Popup indicator for jumping scores */}
+              <AnimatePresence>
+                {lastScoreJump && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                    animate={{ opacity: 1, y: -25, scale: 1 }}
+                    exit={{ opacity: 0, y: -40, scale: 0.9 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="absolute -top-4 right-1/4 transform translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded shadow-[0_0_15px_rgba(16,185,129,0.5)] z-50 whitespace-nowrap"
+                  >
+                    +{lastScoreJump.jump} ATS
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
@@ -220,7 +301,7 @@ export default function EditPanel({ editorState, setEditorState, analysis }: Edi
             <div className="flex-1 bg-white/5 rounded-full h-1.5 overflow-hidden">
               <div 
                 className="bg-gradient-to-r from-blue-500 to-indigo-500 h-1.5 rounded-full transition-all duration-300"
-                style={{ width: `${liveATSBreakdown.score}%` }}
+                style={{ width: `${animatedScore}%` }}
               />
             </div>
             <button 

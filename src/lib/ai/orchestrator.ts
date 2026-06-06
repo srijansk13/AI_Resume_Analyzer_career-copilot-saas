@@ -447,7 +447,7 @@ export async function runFullAnalysis(resumeText: string, jd?: string, targetRol
       }, 180000);
 
       try {
-        let { data, rawText, model, salvaged, salvagedBlocks } = await callGeminiWaterfall(masterPrompt);
+        const { data, rawText, model, salvaged, salvagedBlocks } = await callGeminiWaterfall(masterPrompt);
         
         console.log(`[AI] Raw response preview: ${rawText.substring(0, 1000).replace(/\\n/g, ' ')}...`);
         console.log(`[AI] Response chars: ${rawText.length}`);
@@ -613,7 +613,7 @@ export async function runFullAnalysis(resumeText: string, jd?: string, targetRol
         console.log(`[AI Completeness] Final source: ${analysisSource}`);
 
         // Deep merge with defaults to rescue missing structural fields
-        let mergedData = deepMerge(defaults, finalParsedData);
+        const mergedData = deepMerge(defaults, finalParsedData);
 
         // Run data normalization
         normalizeData(mergedData);
@@ -632,6 +632,10 @@ export async function runFullAnalysis(resumeText: string, jd?: string, targetRol
   } catch (error: any) {
     console.error(`[AI] Waterfall fallback initiated. Master Gemini call completely failed: ${error.message}`);
     
+    if (error && (error.message === "ALL_KEYS_EXHAUSTED" || error.message.includes("cooling down"))) {
+      throw error;
+    }
+    
     console.log(`[AI JSON] Falling back reason: ${error.message}`);
     console.log(`[AI] Final source: fallback`);
     return {
@@ -646,7 +650,7 @@ export async function runFullAnalysis(resumeText: string, jd?: string, targetRol
     };
   }
 
-  const finalAnalysis = {
+  let finalAnalysis = {
     parsedData: masterData.parsedData || defaults.parsedData,
     ats: masterData.ats || defaults.ats,
     recruiter: masterData.recruiter || defaults.recruiter,
@@ -673,7 +677,7 @@ export async function runFullAnalysis(resumeText: string, jd?: string, targetRol
 
   // Consolidate and map skills everywhere for perfect UI compatibility
   try {
-    let allUniqueSkills = new Set<string>();
+    const allUniqueSkills = new Set<string>();
 
     if (finalAnalysis.parsedData && Array.isArray(finalAnalysis.parsedData.skills)) {
       finalAnalysis.parsedData.skills.forEach((s: any) => {
@@ -810,5 +814,74 @@ export async function runFullAnalysis(resumeText: string, jd?: string, targetRol
 
   console.log(`[AI Completeness] Final source: ${analysisSource}`);
 
+  finalAnalysis = calibrateATSScore(finalAnalysis);
+
   return finalAnalysis;
+}
+
+function calibrateATSScore(analysis: any) {
+  if (!analysis || !analysis.ats || typeof analysis.ats.overall_ats_score !== 'number' || !analysis.parsedData) return analysis;
+
+  const pd = analysis.parsedData;
+  let signalBonus = 0;
+
+  // 1. Quantified Achievements in Experience (detecting %, $, numbers)
+  let totalQuantifiedBullets = 0;
+  let totalBullets = 0;
+  if (Array.isArray(pd.experience)) {
+    pd.experience.forEach((exp: any) => {
+      if (Array.isArray(exp.bullets)) {
+        exp.bullets.forEach((bullet: string) => {
+          totalBullets++;
+          if (/(\d+%|\$\d+|\d+x|\b\d+\b)/i.test(bullet)) {
+            totalQuantifiedBullets++;
+          }
+        });
+      }
+    });
+  }
+  if (totalBullets > 0) {
+    const quantifiedRatio = totalQuantifiedBullets / totalBullets;
+    if (quantifiedRatio >= 0.3) signalBonus += 5;
+    else if (quantifiedRatio >= 0.15) signalBonus += 2;
+  }
+
+  // 2. Project Quality (number of projects)
+  if (Array.isArray(pd.projects)) {
+    if (pd.projects.length >= 3) signalBonus += 4;
+    else if (pd.projects.length >= 1) signalBonus += 2;
+  }
+
+  // 3. Experience Depth (number of bullets)
+  if (totalBullets >= 12) signalBonus += 4;
+  else if (totalBullets >= 6) signalBonus += 2;
+
+  // 4. Skills Coverage
+  if (Array.isArray(pd.skills)) {
+    if (pd.skills.length >= 15) signalBonus += 3;
+    else if (pd.skills.length >= 8) signalBonus += 1.5;
+  }
+
+  // 5. Completeness
+  if (pd.summary && pd.summary.length > 50) signalBonus += 1;
+  if (Array.isArray(pd.education) && pd.education.length > 0) signalBonus += 1;
+
+  let newScore = analysis.ats.overall_ats_score + signalBonus;
+  
+  // Weak resumes (original score < 60) get limited bonus
+  if (analysis.ats.overall_ats_score < 60) {
+    newScore = analysis.ats.overall_ats_score + (signalBonus * 0.3);
+  }
+
+  // Cap at 95 to keep it realistic
+  if (newScore > 95) newScore = 95;
+
+  analysis.ats.overall_ats_score = Math.round(newScore);
+
+  // Boost confidence accordingly
+  let newConfidence = (analysis.ats.confidence_score || 80) + (signalBonus * 0.5);
+  if (newConfidence > 98) newConfidence = 98;
+  analysis.ats.confidence_score = Math.round(newConfidence);
+
+  return analysis;
 }

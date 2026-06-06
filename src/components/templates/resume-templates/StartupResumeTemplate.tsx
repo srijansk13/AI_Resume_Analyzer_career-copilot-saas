@@ -305,7 +305,7 @@ export default function StartupResumeTemplate({ editorState }: TemplateProps) {
       {/* LEFT SIDEBAR (contact, superpowers, tools, certifications, links) */}
       <aside style={leftSidebarStyle}>
         <div>
-          <h1 style={{ fontSize: '17pt', fontWeight: 900, color: '#ffffff', lineHeight: '1.2' }}>{personalInfo.fullName}</h1>
+          <h1 style={{ fontSize: '24pt', fontWeight: 900, color: '#ffffff', lineHeight: '1.2' }}>{personalInfo.fullName}</h1>
           {personalInfo.title && (
             <h2 style={{ fontSize: '9pt', fontWeight: 700, color: theme.accentColor || '#818cf8', marginTop: '4px' }}>
               {personalInfo.title}

@@ -305,7 +305,7 @@ export default function ProductDesignerTemplate({ editorState }: TemplateProps) 
       {/* LEFT SIDEBAR (contact, skills, tools, certifications, links) */}
       <aside style={leftSidebarStyle}>
         <div>
-          <h1 style={{ fontSize: '18pt', fontWeight: 900, color: '#1c1917', lineHeight: '1.2', letterSpacing: '-0.025em' }}>
+          <h1 style={{ fontSize: '22pt', fontWeight: 900, color: '#1c1917', lineHeight: '1.2', letterSpacing: '-0.025em' }}>
             {personalInfo.fullName}
           </h1>
           {personalInfo.title && (

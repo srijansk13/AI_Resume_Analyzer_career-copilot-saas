@@ -45,7 +45,7 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
   };
 
   const sidebarSectionTitleStyle = {
-    fontFamily: 'monospace',
+    fontFamily: theme.headingFont || 'Courier New, Courier, monospace',
     fontSize: '9.5pt',
     fontWeight: 'bold',
     color: theme.accentColor || '#38bdf8',
@@ -57,7 +57,7 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
   };
 
   const rightSectionTitleStyle = {
-    fontFamily: 'monospace',
+    fontFamily: theme.headingFont || 'Courier New, Courier, monospace',
     fontSize: '11pt',
     fontWeight: 'bold',
     color: theme.primaryColor || '#0f172a',
@@ -70,7 +70,7 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
 
   const skillBadgeStyle = {
     fontSize: '7.5pt',
-    fontFamily: 'monospace',
+    fontFamily: theme.headingFont || 'Courier New, Courier, monospace',
     backgroundColor: '#1e293b',
     color: '#38bdf8',
     border: '1px solid #334155',
@@ -96,7 +96,7 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {(skills as any[]).map((cat, idx) => (
                   <div key={idx}>
-                    <div style={{ fontSize: '8pt', fontWeight: 'bold', color: '#94a3b8', fontFamily: 'monospace', marginBottom: '2px' }}>
+                    <div style={{ fontSize: '8pt', fontWeight: 'bold', color: '#94a3b8', fontFamily: theme.headingFont || 'Courier New, Courier, monospace', marginBottom: '2px' }}>
                       {cat.category}
                     </div>
                     <div>
@@ -115,7 +115,7 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
         return visibleSections.certifications !== false && certifications && certifications.length > 0 ? (
           <div key="certifications">
             <h3 style={sidebarSectionTitleStyle}>[0x05] Certifications</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '8pt', fontFamily: 'monospace' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '8pt', fontFamily: theme.headingFont || 'Courier New, Courier, monospace' }}>
               {certifications.map((cert) => (
                 <div key={cert.id} style={{ color: '#94a3b8' }}>
                   <div style={{ fontWeight: 'bold', color: '#ffffff' }}>{cert.name}</div>
@@ -323,11 +323,11 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
       {/* LEFT SIDEBAR (contact, skills, tools, certifications, links) */}
       <aside style={leftSidebarStyle}>
         <div style={leftHeaderStyle}>
-          <h1 style={{ fontSize: '15pt', fontWeight: 800, color: '#ffffff', fontFamily: 'monospace' }}>
+          <h1 style={{ fontSize: '20pt', fontWeight: 800, color: '#ffffff', fontFamily: theme.headingFont || 'Courier New, Courier, monospace' }}>
             {personalInfo.fullName}
           </h1>
           {personalInfo.title && (
-            <div style={{ fontSize: '8pt', color: '#38bdf8', fontWeight: 600, fontFamily: 'monospace', marginTop: '2px' }}>
+            <div style={{ fontSize: '8pt', color: '#38bdf8', fontWeight: 600, fontFamily: theme.headingFont || 'Courier New, Courier, monospace', marginTop: '2px' }}>
               {personalInfo.title}
             </div>
           )}
@@ -336,7 +336,7 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
         {/* Contact section */}
         <div>
           <h3 style={sidebarSectionTitleStyle}>[0x01] Contact</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '8pt', fontFamily: 'monospace', color: '#94a3b8' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '8pt', fontFamily: theme.headingFont || 'Courier New, Courier, monospace', color: '#94a3b8' }}>
             {personalInfo.contact.email && <div>✉ {personalInfo.contact.email}</div>}
             {personalInfo.contact.phone && <div>☎ {personalInfo.contact.phone}</div>}
             {personalInfo.contact.location && <div>📍 {personalInfo.contact.location}</div>}
@@ -346,7 +346,7 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
         {/* Links section */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <h3 style={sidebarSectionTitleStyle}>[0x02] Links</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '8pt', fontFamily: 'monospace', color: '#38bdf8' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '8pt', fontFamily: theme.headingFont || 'Courier New, Courier, monospace', color: '#38bdf8' }}>
             {personalInfo.contact.linkedin && (
               <a href={personalInfo.contact.linkedin} target="_blank" rel="noreferrer" style={{ color: '#38bdf8', textDecoration: 'none' }}>→ linkedin.com</a>
             )}
@@ -362,7 +362,7 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
         {/* Tools & Frameworks */}
         <div>
           <h3 style={sidebarSectionTitleStyle}>[0x04] Systems / Tools</h3>
-          <div style={{ fontSize: '8pt', fontFamily: 'monospace', color: '#94a3b8' }}>
+          <div style={{ fontSize: '8pt', fontFamily: theme.headingFont || 'Courier New, Courier, monospace', color: '#94a3b8' }}>
             PyTorch, TensorFlow, CUDA, Docker, Kubernetes, Git, GCP, AWS, Linux
           </div>
         </div>

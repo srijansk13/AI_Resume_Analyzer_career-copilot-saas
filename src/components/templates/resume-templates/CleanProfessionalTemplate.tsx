@@ -31,7 +31,7 @@ export default function CleanProfessionalTemplate({ editorState }: TemplateProps
 
   const nameStyle = {
     fontFamily: theme.headingFont || theme.fontFamily || 'Inter, sans-serif',
-    fontSize: '22pt',
+    fontSize: '24pt',
     fontWeight: 800,
     color: theme.primaryColor || '#0f172a',
     letterSpacing: '-0.02em',

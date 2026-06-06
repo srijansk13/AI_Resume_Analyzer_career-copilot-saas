@@ -13,7 +13,7 @@ export default function ATSClassicTemplate({ editorState }: TemplateProps) {
     <div className="p-12 font-serif text-black text-[10.5pt] leading-normal bg-white min-h-[297mm]">
       {/* HEADER */}
       <header className="text-center mb-6">
-        <h1 className="text-2xl font-bold tracking-normal uppercase text-gray-900 mb-1.5">
+        <h1 className="text-4xl font-bold tracking-normal uppercase text-gray-900 mb-1.5">
           {personalInfo.fullName}
         </h1>
         <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-1 text-sm text-gray-700 font-sans">

@@ -33,7 +33,7 @@ export default function MinimalEngineerTemplate({ editorState }: TemplateProps) 
   };
 
   const nameStyle = {
-    fontSize: '18pt',
+    fontSize: '22pt',
     fontWeight: 800,
     color: '#0f172a',
     letterSpacing: '-0.025em',

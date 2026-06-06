@@ -4,7 +4,8 @@ import { EditorState } from '@/models/EditorState';
 import { IAnalysis } from '@/models/Analysis';
 import { useRouter } from 'next/navigation';
 import { useReactToPrint } from 'react-to-print';
-import { Download, ZoomIn, ZoomOut, CheckCircle2, LayoutTemplate, ArrowLeft } from 'lucide-react';
+import { Download, ZoomIn, ZoomOut, CheckCircle2, LayoutTemplate, ArrowLeft, X, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ResumePageEngine from './ResumePageEngine';
 
 // Import templates
@@ -23,6 +24,14 @@ import AIEngineerTemplate from '../templates/resume-templates/AIEngineerTemplate
 import ProductManagerTemplate from '../templates/resume-templates/ProductManagerTemplate';
 import ElegantSidebarTemplate from '../templates/resume-templates/ElegantSidebarTemplate';
 import CreativeProfessionalTemplate from '../templates/resume-templates/CreativeProfessionalTemplate';
+import JakesResumeTemplate from '../templates/resume-templates/JakesResumeTemplate';
+import DeedyResumeTemplate from '../templates/resume-templates/DeedyResumeTemplate';
+import AltaCVTemplate from '../templates/resume-templates/AltaCVTemplate';
+import ModernCVTemplate from '../templates/resume-templates/ModernCVTemplate';
+import AwesomeCVTemplate from '../templates/resume-templates/AwesomeCVTemplate';
+import AcademicCVTemplate from '../templates/resume-templates/AcademicCVTemplate';
+import FAANGResumeTemplate from '../templates/resume-templates/FAANGResumeTemplate';
+import IITPlacementTemplate from '../templates/resume-templates/IITPlacementTemplate';
 
 const TEMPLATES_MAP: Record<string, React.ElementType> = {
   'ats-classic': ATSClassicTemplate,
@@ -40,6 +49,14 @@ const TEMPLATES_MAP: Record<string, React.ElementType> = {
   'product-manager': ProductManagerTemplate,
   'elegant-sidebar': ElegantSidebarTemplate,
   'creative-professional': CreativeProfessionalTemplate,
+  'jakes-resume': JakesResumeTemplate,
+  'deedy-resume': DeedyResumeTemplate,
+  'altacv-resume': AltaCVTemplate,
+  'moderncv-resume': ModernCVTemplate,
+  'awesomecv-resume': AwesomeCVTemplate,
+  'academiccv-resume': AcademicCVTemplate,
+  'faang-resume': FAANGResumeTemplate,
+  'iit-placement': IITPlacementTemplate,
 };
 
 const TEMPLATE_OPTIONS = [
@@ -58,6 +75,12 @@ const TEMPLATE_OPTIONS = [
   { id: 'product-manager', name: 'Product Manager' },
   { id: 'elegant-sidebar', name: 'Elegant Sidebar' },
   { id: 'creative-professional', name: 'Creative Professional' },
+  { id: 'jakes-resume', name: "Jake's Resume Inspired" },
+  { id: 'deedy-resume', name: 'Deedy Resume Inspired' },
+  { id: 'altacv-resume', name: 'AltaCV Inspired' },
+  { id: 'awesomecv-resume', name: 'Awesome CV Inspired' },
+  { id: 'faang-resume', name: 'Clean FAANG Resume' },
+  { id: 'iit-placement', name: 'IIT / NIT Placement Style' },
 ];
 
 interface LivePreviewPanelProps {
@@ -84,6 +107,8 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
   const [isFitPage, setIsFitPage] = useState(true); // Default to Fit Page on load
   const [containerHeight, setContainerHeight] = useState(1123);
   const [saveStatus, setSaveStatus] = useState<'synced' | 'saving'>('synced');
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [customFileName, setCustomFileName] = useState(`${editorState.content.personalInfo.fullName.replace(/\s+/g, '_')}_Resume`);
   
   useEffect(() => {
     setSaveStatus('saving');
@@ -95,7 +120,8 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
 
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
-    documentTitle: `${editorState.content.personalInfo.fullName.replace(/\s+/g, '_')}_Resume`,
+    documentTitle: customFileName || `${editorState.content.personalInfo.fullName.replace(/\s+/g, '_')}_Resume`,
+    onAfterPrint: () => setShowExportModal(false)
   });
 
   const handleTemplateChange = (templateId: string) => {
@@ -335,7 +361,10 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
 
           {/* Export PDF Button */}
           <button 
-            onClick={() => handlePrint()}
+            onClick={() => {
+              setCustomFileName(`${editorState.content.personalInfo.fullName.replace(/\s+/g, '_')}_Resume`);
+              setShowExportModal(true);
+            }}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-gray-200 text-black text-xs font-black uppercase tracking-wider shadow-lg shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shrink-0"
             title="Export standard printable PDF format"
           >
@@ -353,23 +382,59 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
         {/* Inject print-specific stylesheets for standard A4 boundary print rendering */}
         <style dangerouslySetInnerHTML={{ __html: `
           @media print {
+            @page {
+              size: A4 portrait;
+              margin: 0 !important; /* Templates provide their own padding */
+            }
             body {
               background: white !important;
               margin: 0 !important;
               padding: 0 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
-            .printable-page {
-              box-shadow: none !important;
+            .printable-page, .resume-print-root {
+              width: 100% !important;
+              max-width: 100% !important;
+              box-sizing: border-box !important;
+              min-height: auto !important; /* Let content determine height, no blank pages */
               margin: 0 !important;
+              box-shadow: none !important;
               border: none !important;
-              page-break-after: always !important;
+              transform: none !important;
+              page-break-inside: auto !important;
+              page-break-after: auto !important;
+              overflow: visible !important;
+              word-break: break-word !important;
+              overflow-wrap: break-word !important;
+            }
+            /* Allow large sections to split naturally so we don't get huge blank gaps */
+            section, article, .resume-section {
+              page-break-inside: auto !important;
+              break-inside: auto !important;
+            }
+            /* Keep headings attached to the content immediately following them */
+            h1, h2, h3, h4, h5, h6 {
+              page-break-after: avoid !important;
+              break-after: avoid !important;
+            }
+            /* Avoid splitting individual items inside a section (direct children of space-y wrappers) */
+            .resume-section > div > div, .resume-section > ul > li, [data-breakable="true"] > div > div, [data-section-item="true"], .break-inside-avoid {
               page-break-inside: avoid !important;
-              width: 210mm !important;
-              height: 297mm !important;
+              break-inside: avoid !important;
+            }
+            ul, li {
+              page-break-inside: auto !important;
+              break-inside: auto !important;
+            }
+            li {
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
             }
           }
         ` }} />
         <div 
+          className="print:!h-auto print:!w-auto print:!block"
           style={{
             height: `${containerHeight * zoom}px`,
             width: `${794 * zoom}px`,
@@ -378,7 +443,7 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
           }}
         >
           <div 
-            className="relative flex-shrink-0"
+            className="relative flex-shrink-0 print:!transform-none print:!w-full print:!static print:!left-auto print:!ml-0"
             style={{ 
               transform: `scale(${zoom})`, 
               transformOrigin: 'top center',
@@ -392,7 +457,7 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
             {/* The printable area containing pages */}
             <div 
               ref={componentRef} 
-              className="flex flex-col gap-8 select-text w-[794px]"
+              className="flex flex-col gap-8 select-text w-[794px] print:!w-full print:!gap-0 print:!block"
             >
               <ResumePageEngine 
                 editorState={editorState}
@@ -402,6 +467,74 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
           </div>
         </div>
       </div>
+
+      {/* Export PDF Modal */}
+      <AnimatePresence>
+        {showExportModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-[#121212] border border-white/10 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-5 border-b border-white/10">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-indigo-400" />
+                  Export Professional PDF
+                </h3>
+                <button
+                  onClick={() => setShowExportModal(false)}
+                  className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-6 space-y-5">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-2">
+                    PDF File Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={customFileName}
+                      onChange={(e) => setCustomFileName(e.target.value)}
+                      className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder-gray-600"
+                      placeholder="e.g. Srijan_Kumar_Resume"
+                    />
+                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-500 text-sm font-mono">
+                      .pdf
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-3">
+                    Your resume will be exported precisely as it appears in the live preview.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <button
+                    onClick={() => setShowExportModal(false)}
+                    className="px-4 py-2.5 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 hover:text-white text-xs font-bold transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!customFileName) setCustomFileName('Resume');
+                      handlePrint();
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Download PDF
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

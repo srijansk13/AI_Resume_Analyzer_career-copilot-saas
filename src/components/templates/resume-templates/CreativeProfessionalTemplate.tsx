@@ -43,7 +43,7 @@ export default function CreativeProfessionalTemplate({ editorState }: TemplatePr
   const sectionHeaderStyle = {
     fontFamily: theme.headingFont || theme.fontFamily || 'Inter, sans-serif',
     fontSize: '12pt',
-    fontWeight: 'bold',
+    fontWeight: 900,
     color: theme.primaryColor || '#1e1b4b',
     display: 'flex',
     alignItems: 'center',

@@ -18,7 +18,7 @@ async function runAIEngine(engineName: string, prompt: string, schema: any) {
     throw error;
   }
 
-  let validation = schema.safeParse(res);
+  const validation = schema.safeParse(res);
   
   if (validation.success) {
     console.log(`[AI][${engineName}] Response chars: ${JSON.stringify(res).length}`);
