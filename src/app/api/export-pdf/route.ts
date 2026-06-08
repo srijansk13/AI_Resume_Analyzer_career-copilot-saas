@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,10 +17,14 @@ export async function POST(req: NextRequest) {
     console.log(`HTML preview (first 300 chars): ${html?.substring(0, 300)}`);
     console.log('------------------------');
 
-    // Launch puppeteer
+    // Launch puppeteer with Vercel/Chromium compat
     const browser = await puppeteer.launch({
+      args: chromium.args,
+      executablePath:
+        process.env.NODE_ENV === 'production'
+          ? await chromium.executablePath()
+          : undefined,
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     const page = await browser.newPage();
