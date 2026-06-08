@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -77,15 +78,8 @@ export default function CreativeProfessionalTemplate({ editorState }: TemplatePr
           {personalInfo.contact.email && <span>{personalInfo.contact.email}</span>}
           {personalInfo.contact.phone && <span>{personalInfo.contact.phone}</span>}
           {personalInfo.contact.location && <span>{personalInfo.contact.location}</span>}
-          {personalInfo.contact.linkedin && (
-            <a href={personalInfo.contact.linkedin} target="_blank" rel="noreferrer" style={{ color: theme.accentColor || '#6366f1', textDecoration: 'none', fontWeight: 600 }} className="hover:underline">
-              LinkedIn
-            </a>
-          )}
-          {personalInfo.contact.github && (
-            <a href={personalInfo.contact.github} target="_blank" rel="noreferrer" style={{ color: theme.accentColor || '#6366f1', textDecoration: 'none', fontWeight: 600 }} className="hover:underline">
-              GitHub
-            </a>
+          {((personalInfo.contact.linkedin) || (personalInfo.contact.github) || (personalInfo.contact.website )) && (
+            <ContactLinks contact={personalInfo.contact} separator={<span>|</span>} linkColor={theme.accentColor || '#6366f1'} />
           )}
         </div>
       </header>
@@ -152,11 +146,7 @@ export default function CreativeProfessionalTemplate({ editorState }: TemplatePr
                         <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'baseline', flexWrap: 'wrap' }}>
                           <span style={{ fontWeight: 'bold', fontSize: '10pt', color: '#0f172a' }}>
                             {proj.name}
-                            {proj.link && (
-                              <a href={proj.link} target="_blank" rel="noreferrer" style={{ color: theme.accentColor || '#6366f1', textDecoration: 'none', fontWeight: 'normal', fontSize: '8.5pt', marginLeft: '8px' }}>
-                                Link 🔗
-                              </a>
-                            )}
+                            <ProjectLinks project={proj} separator=" | " linkColor={theme.accentColor || '#3b82f6'} style={{ fontSize: '8pt' }} />
                           </span>
                           {proj.technologies && proj.technologies.length > 0 && (
                             <span style={{ fontSize: '8pt', color: '#64748b', marginLeft: 'auto', fontWeight: 500 }}>

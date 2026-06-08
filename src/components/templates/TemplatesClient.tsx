@@ -173,7 +173,7 @@ export function TemplatesClient() {
   const categories = ['All', 'ATS Safe', 'Developer', 'Executive', 'Designer', 'One Column', 'Two Column'];
 
   return (
-    <div className="min-h-screen bg-[#030303] text-slate-100 pt-20 pb-32 px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#030303] text-slate-100 pt-20 pb-32 px-6 relative overflow-hidden mobile-safe-bottom">
       {/* Background glowing meshes */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/[0.02] rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/[0.015] rounded-full blur-[120px] pointer-events-none" />
@@ -218,11 +218,11 @@ export function TemplatesClient() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="flex overflow-x-auto pb-8 -mx-6 px-6 snap-x snap-mandatory hide-scrollbar md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 md:overflow-visible md:pb-0">
           {filteredTemplates.map(template => {
             const TemplateComponent = template.component;
             return (
-              <div key={template.id} className="group relative rounded-3xl border border-white/[0.06] bg-[#0b0b0f]/80 overflow-hidden hover:border-indigo-500/40 hover:bg-[#0d0d14]/90 transition-all duration-300 flex flex-col h-full shadow-2xl">
+              <div key={template.id} className="w-[85vw] sm:w-[350px] shrink-0 snap-center md:w-auto group relative rounded-3xl border border-white/[0.06] bg-[#0b0b0f]/80 overflow-hidden hover:border-indigo-500/40 hover:bg-[#0d0d14]/90 transition-all duration-300 flex flex-col h-full shadow-2xl">
                 <div className="aspect-[1/1.3] bg-black/40 relative flex items-start justify-center p-4 overflow-hidden border-b border-white/[0.04]">
                   {/* Real Template Preview Scaled Down to fit the card */}
                   <div className="w-[794px] min-h-[1123px] origin-top absolute top-6 left-1/2 -translate-x-1/2 scale-[0.32] md:scale-[0.27] lg:scale-[0.28] shadow-2xl bg-white transition-transform duration-500 group-hover:scale-[0.29] group-hover:translate-y-[-2px] flex-shrink-0 rounded-sm">

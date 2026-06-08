@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -23,8 +24,12 @@ export default function AwesomeCVTemplate({ editorState }: TemplateProps) {
           {personalInfo.contact.phone && <span>{personalInfo.contact.phone}</span>}
           {personalInfo.contact.phone && personalInfo.contact.email && <span className="text-[#dc3522] text-[6pt]">●</span>}
           {personalInfo.contact.email && <span>{personalInfo.contact.email}</span>}
-          {personalInfo.contact.email && personalInfo.contact.linkedin && <span className="text-[#dc3522] text-[6pt]">●</span>}
-          {personalInfo.contact.linkedin && <span>{personalInfo.contact.linkedin.replace(/^https?:\/\//, '')}</span>}
+          {((personalInfo.contact.linkedin) || (personalInfo.contact.github) || (personalInfo.contact.website )) && (
+            <span className="inline-flex items-center gap-2.5">
+              <span className="text-[#dc3522] text-[6pt]">●</span>
+              <ContactLinks contact={personalInfo.contact} separator={<span className="text-[#dc3522] text-[6pt]">●</span>} linkColor="#555" />
+            </span>
+          )}
         </div>
       </header>
 
@@ -127,6 +132,12 @@ export default function AwesomeCVTemplate({ editorState }: TemplateProps) {
                       <div key={proj.id}>
                         <div className="flex justify-between items-baseline mb-0.5">
                           <span className="font-bold text-[1.11em] text-[#dc3522]">{proj.name}</span>
+                          <ProjectLinks
+                            project={proj}
+                            separator=" | "
+                            linkColor={theme.accentColor || '#3b82f6'}
+                            style={{ fontSize: '8pt' }}
+                          />
                           <span className="text-[#666] text-[0.89em] font-semibold"></span>
                         </div>
                         {proj.technologies && proj.technologies.length > 0 && (

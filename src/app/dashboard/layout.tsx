@@ -15,6 +15,8 @@ import {
   LayoutTemplate
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MobileBottomNav from '@/components/dashboard/MobileBottomNav';
+import { AnimatePresence } from 'framer-motion';
 
 export default function DashboardLayout({
   children,
@@ -51,12 +53,7 @@ export default function DashboardLayout({
       <div className="absolute bottom-[-10%] right-[5%] w-[700px] h-[700px] bg-purple-500/[0.03] rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute top-[40%] left-[50%] w-[500px] h-[500px] bg-blue-500/[0.02] rounded-full blur-[120px] pointer-events-none" />
 
-      {/* Mobile sidebar toggle */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)} className="bg-[#0f0f13]/80 border border-white/5 backdrop-blur-md rounded-xl hover:bg-white/5">
-          {sidebarOpen ? <X /> : <Menu />}
-        </Button>
-      </div>
+      {/* Old Mobile sidebar toggle removed for MobileBottomNav */}
 
       {/* Sidebar */}
       <motion.aside
@@ -139,9 +136,22 @@ export default function DashboardLayout({
       </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:pl-0 min-w-0 flex flex-col relative z-10 bg-transparent">
-        {children}
+      <main className="flex-1 lg:pl-0 min-w-0 flex flex-col relative z-10 bg-transparent lg:pb-0">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex-1 flex flex-col"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
+
+      <MobileBottomNav />
     </div>
   );
 }

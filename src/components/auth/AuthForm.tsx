@@ -226,7 +226,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/60 border border-white/[0.08] text-white text-xs font-semibold placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+                  className="w-full pl-10 pr-4 py-3.5 lg:py-2.5 rounded-xl bg-black/60 border border-white/[0.08] text-white text-xs font-semibold placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
                   required
                 />
               </div>
@@ -246,7 +246,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@domain.com"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-black/60 border border-white/[0.08] text-white text-xs font-semibold placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+                className="w-full pl-10 pr-4 py-3.5 lg:py-2.5 rounded-xl bg-black/60 border border-white/[0.08] text-white text-xs font-semibold placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
                 required
               />
             </div>
@@ -255,7 +255,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           <Button 
             type="submit" 
             disabled={loading || !email || (type === 'signup' && !name)}
-            className="w-full h-11 mt-6 bg-white hover:bg-slate-200 text-black text-xs font-black rounded-xl shadow-lg shadow-white/5 flex items-center justify-center gap-1.5 hover:scale-[1.01] active:scale-[0.99] transition-all"
+            className="w-full mt-6 flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01] active:scale-[0.99] text-xs font-black h-14 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_8px_30px_rgb(99,102,241,0.3)] lg:h-11 lg:rounded-xl lg:bg-none lg:bg-white lg:hover:bg-slate-200 lg:text-black lg:shadow-lg lg:shadow-white/5"
           >
             {loading ? <Loader2 className="h-4.5 w-4.5 animate-spin" /> : 'Continue dispatch'}
             {!loading && <ArrowRight className="h-4 w-4" />}
@@ -276,7 +276,7 @@ export default function AuthForm({ type }: AuthFormProps) {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="••••••"
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/60 border border-white/[0.08] text-white text-sm font-black text-center tracking-[0.6em] placeholder-gray-700 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
+                className="w-full pl-10 pr-4 py-4 lg:py-3 rounded-xl bg-black/60 border border-white/[0.08] text-white text-sm font-black text-center tracking-[0.6em] placeholder-gray-700 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all"
                 required
                 maxLength={6}
               />
@@ -286,7 +286,7 @@ export default function AuthForm({ type }: AuthFormProps) {
           <Button 
             type="submit" 
             disabled={loading || code.length < 6}
-            className="w-full h-11 mt-6 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-xl shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-1.5 hover:scale-[1.01] active:scale-[0.99] transition-all"
+            className="w-full mt-6 flex items-center justify-center gap-1.5 transition-all hover:scale-[1.01] active:scale-[0.99] text-xs font-black h-14 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-[0_8px_30px_rgb(99,102,241,0.3)] lg:h-11 lg:rounded-xl lg:bg-none lg:bg-indigo-600 lg:hover:bg-indigo-700 lg:shadow-lg lg:shadow-indigo-600/10"
           >
             {loading ? <Loader2 className="h-4.5 w-4.5 animate-spin" /> : 'Verify secret key'}
           </Button>

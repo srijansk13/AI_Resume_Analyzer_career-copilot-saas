@@ -206,7 +206,7 @@ export default function UploadArea() {
   };
 
   return (
-    <div className="w-full relative mt-6 font-sans min-h-[340px]">
+    <div className="w-full relative mt-6 font-sans min-h-[280px] md:min-h-[340px]">
       
       {/* Decorative ambient backdrop light */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-indigo-500/[0.015] rounded-full blur-[80px] pointer-events-none" />
@@ -333,7 +333,7 @@ export default function UploadArea() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            className={`relative p-12 border border-dashed rounded-3xl transition-all duration-500 text-center backdrop-blur-xl ${
+            className={`relative p-5 md:p-12 border border-dashed rounded-3xl transition-all duration-500 text-center backdrop-blur-xl ${
               dragActive 
                 ? 'border-indigo-500 bg-indigo-500/[0.03] shadow-[0_0_50px_-12px_rgba(99,102,241,0.2)] scale-[1.01]' 
                 : 'border-white/10 bg-[#07070a]/40 hover:border-white/20 hover:bg-white/[0.015]'
@@ -352,28 +352,28 @@ export default function UploadArea() {
             
             <div className="flex flex-col items-center pointer-events-none relative">
               {/* Spinning circular gradient ring on hover */}
-              <div className="relative mb-6">
+              <div className="relative mb-4 md:mb-6">
                 <div className={`absolute inset-[-4px] rounded-full bg-gradient-to-tr from-indigo-500 to-blue-500 opacity-20 blur-sm transition-all duration-500 ${
                   dragActive ? 'scale-110 opacity-60 animate-spin' : 'scale-100 group-hover:opacity-40'
                 }`} style={{ animationDuration: '4s' }} />
                 
-                <div className={`h-16 w-16 rounded-full bg-white/[0.03] flex items-center justify-center border border-white/10 shadow-inner relative z-10 transition-transform duration-500 ${
+                <div className={`h-12 w-12 md:h-16 md:w-16 rounded-full bg-white/[0.03] flex items-center justify-center border border-white/10 shadow-inner relative z-10 transition-transform duration-500 ${
                   dragActive ? 'translate-y-[-4px] text-white' : ''
                 }`}>
-                  <UploadCloud className={`h-8 w-8 transition-all duration-300 ${dragActive ? 'text-indigo-400 scale-110' : 'text-gray-400'}`} />
+                  <UploadCloud className={`h-6 w-6 md:h-8 md:w-8 transition-all duration-300 ${dragActive ? 'text-indigo-400 scale-110' : 'text-gray-400'}`} />
                 </div>
               </div>
 
-              <h3 className="text-lg font-black text-white mb-2 tracking-tight">
+              <h3 className="text-base md:text-lg font-black text-white mb-1.5 md:mb-2 tracking-tight">
                 Drop your resume to unlock AI career intelligence
               </h3>
               
-              <p className="text-xs text-gray-400 max-w-sm font-semibold leading-relaxed mb-6">
+              <p className="text-[11px] md:text-xs text-gray-400 max-w-sm font-semibold leading-relaxed mb-4 md:mb-6">
                 Drag and drop your PDF resume here, or <span className="text-indigo-400 hover:text-indigo-300 font-bold underline cursor-pointer">browse your files</span>. We'll instantly evaluate your ATS score.
               </p>
 
               {/* Supported details & trust badges */}
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-6 border-t border-white/[0.03] w-full max-w-md">
+              <div className="flex flex-wrap items-center justify-center gap-2.5 md:gap-3 pt-4 md:pt-6 border-t border-white/[0.03] w-full max-w-md">
                 <div className="flex items-center space-x-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider bg-white/[0.02] px-2.5 py-1 rounded-md border border-white/[0.04]">
                   <span>PDF FORMAT ONLY</span>
                 </div>
@@ -395,7 +395,7 @@ export default function UploadArea() {
             key="file"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-8 rounded-3xl bg-[#07070a]/60 backdrop-blur-xl border border-white/[0.06] shadow-xl"
+            className="p-4 md:p-8 rounded-3xl bg-[#07070a]/60 backdrop-blur-xl border border-white/[0.06] shadow-xl"
           >
             {error && (
               <motion.div 

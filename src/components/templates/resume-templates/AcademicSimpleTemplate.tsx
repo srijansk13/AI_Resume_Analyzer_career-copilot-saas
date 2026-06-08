@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -50,6 +51,8 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
     marginTop: '12px',
   };
 
+  const hasLinks = personalInfo.contact.linkedin || personalInfo.contact.github || personalInfo.contact.website ;
+
   return (
     <div style={wrapperStyle} className="w-full">
       {/* HEADER */}
@@ -60,11 +63,16 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
             {personalInfo.title}
           </div>
         )}
-        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '14px', fontSize: '8.5pt', color: '#333333' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '14px', fontSize: '8.5pt', color: '#333333', alignItems: 'center' }}>
           {personalInfo.contact.email && <span>{personalInfo.contact.email}</span>}
           {personalInfo.contact.phone && <span>• &nbsp; {personalInfo.contact.phone}</span>}
           {personalInfo.contact.location && <span>• &nbsp; {personalInfo.contact.location}</span>}
-          {personalInfo.contact.linkedin && <span>• &nbsp; CV/LinkedIn</span>}
+          {hasLinks && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '14px' }}>
+              <span>•</span>
+              <ContactLinks contact={personalInfo.contact} separator={<span>•</span>} linkColor="#333333" />
+            </span>
+          )}
         </div>
       </header>
 
@@ -78,14 +86,10 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
             case 'education':
               return education.length > 0 ? (
                 <section key="education" data-section-id="education" data-section-title="Education" data-breakable="true">
-
                   <h3 style={sectionHeaderStyle}>Education</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} data-section-list="true">
-
                     {education.map((edu) => (
-
                       <div key={edu.id} data-section-item="true">
-
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontWeight: 'bold' }}>
                           <span>{edu.degree} {edu.field ? `in ${edu.field}` : ''}</span>
                           <span style={{ fontWeight: 'normal', fontSize: '9.5pt' }}>
@@ -97,15 +101,14 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
                         </div>
                         {edu.gpa && <div style={{ fontSize: '9pt', color: '#333' }}>GPA: {edu.gpa}</div>}
                       </div>
-))}
-</div>
-</section>
+                    ))}
+                  </div>
+                </section>
               ) : null;
 
             case 'summary':
               return summary ? (
                 <section key="summary" data-section-id="summary" data-section-title="Professional Summary">
-
                   <h3 style={sectionHeaderStyle}>Research Statement & Profile</h3>
                   <p style={{ textAlign: 'justify', margin: '0', fontSize: '10pt' }}>{summary}</p>
                 </section>
@@ -114,14 +117,10 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
             case 'experience':
               return experience.length > 0 ? (
                 <section key="experience" data-section-id="experience" data-section-title="Work Experience" data-breakable="true">
-
                   <h3 style={sectionHeaderStyle}>Research & Professional Experience</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} data-section-list="true">
-
                     {experience.map((exp) => (
-
                       <div key={exp.id} data-section-item="true">
-
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontWeight: 'bold' }}>
                           <span>{exp.role}</span>
                           <span style={{ fontWeight: 'normal', fontSize: '9.5pt' }}>
@@ -138,24 +137,26 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
                           ))}
                         </ul>
                       </div>
-))}
-</div>
-</section>
+                    ))}
+                  </div>
+                </section>
               ) : null;
 
             case 'projects':
               return projects.length > 0 ? (
                 <section key="projects" data-section-id="projects" data-section-title="Key Projects" data-breakable="true">
-
                   <h3 style={sectionHeaderStyle}>Academic Projects & Publications</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} data-section-list="true">
-
                     {projects.map((proj) => (
-
                       <div key={proj.id} data-section-item="true">
-
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontWeight: 'bold' }}>
                           <span>{proj.name}</span>
+                          <ProjectLinks
+                            project={proj}
+                            separator=" | "
+                            linkColor={theme.accentColor || '#3b82f6'}
+                            style={{ fontSize: '8pt' }}
+                          />
                           {proj.technologies && proj.technologies.length > 0 && (
                             <span style={{ fontWeight: 'normal', fontSize: '8.5pt', fontStyle: 'italic' }}>
                               ({proj.technologies.join(', ')})
@@ -169,9 +170,9 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
                           ))}
                         </ul>
                       </div>
-))}
-</div>
-</section>
+                    ))}
+                  </div>
+                </section>
               ) : null;
 
             case 'skills':
@@ -211,108 +212,104 @@ export default function AcademicSimpleTemplate({ editorState }: TemplateProps) {
                 </section>
               ) : null;
 
-            
-            
+            case 'achievements':
+              return visibleSections.achievements !== false && achievements.length > 0 ? (
+                <section key="achievements" data-section-id="achievements" data-section-title="Achievements & Awards" data-breakable="true">
+                  <h3 style={sectionHeaderStyle}>Achievements & Awards</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }} data-section-list="true">
+                    {achievements.map((ach) => (
+                      <div key={ach.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }} data-section-item="true">
+                        <div style={{ fontSize: '9.5pt', color: theme.textColor || '#334155' }}>
+                          <span style={{ fontWeight: 'bold', color: theme.primaryColor || '#0f172a' }}>{ach.title}</span>
+                          {ach.description && <span style={{ color: theme.textColor || '#475569', marginLeft: '6px', fontWeight: 'normal' }}>— {ach.description}</span>}
+                        </div>
+                        {ach.date && <span style={{ marginLeft: 'auto', fontSize: '8.5pt', color: '#64748b', fontWeight: 'normal' }}>{ach.date}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null;
 
-      
-      case 'achievements':
-        return visibleSections.achievements !== false && achievements.length > 0 ? (
-          <section key="achievements" data-section-id="achievements" data-section-title="Achievements & Awards" data-breakable="true">
-            <h3 style={sectionHeaderStyle}>Achievements & Awards</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }} data-section-list="true">
-              {achievements.map((ach) => (
-                <div key={ach.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }} data-section-item="true">
-                  <div style={{ fontSize: '9.5pt', color: theme.textColor || '#334155' }}>
-                    <span style={{ fontWeight: 'bold', color: theme.primaryColor || '#0f172a' }}>{ach.title}</span>
-                    {ach.description && <span style={{ color: theme.textColor || '#475569', marginLeft: '6px', fontWeight: 'normal' }}>— {ach.description}</span>}
+            case 'awards':
+              return visibleSections.awards !== false && awards.length > 0 ? (
+                <section key="awards" data-section-id="awards" data-section-title="Awards & Honors" data-breakable="true">
+                  <h3 style={sectionHeaderStyle}>Awards & Honors</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }} data-section-list="true">
+                    {awards.map((award) => (
+                      <div key={award.id} style={{ display: 'flex', flexDirection: 'column' }} data-section-item="true">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '10pt', color: theme.primaryColor || '#0f172a' }}>{award.title}</span>
+                          {award.date && <span style={{ marginLeft: 'auto', fontSize: '8.5pt', color: '#64748b', fontWeight: 'normal' }}>{award.date}</span>}
+                        </div>
+                        <div style={{ fontSize: '9pt', color: theme.textColor || '#475569', fontStyle: 'italic', fontWeight: 'normal' }}>
+                          {award.issuer}
+                        </div>
+                        {award.description && <p style={{ color: theme.textColor || '#475569', fontSize: '9.5pt', marginTop: '2px', fontWeight: 'normal' }}>{award.description}</p>}
+                      </div>
+                    ))}
                   </div>
-                  {ach.date && <span style={{ marginLeft: 'auto', fontSize: '8.5pt', color: '#64748b', fontWeight: 'normal' }}>{ach.date}</span>}
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null;
+                </section>
+              ) : null;
 
-      case 'awards':
-        return visibleSections.awards !== false && awards.length > 0 ? (
-          <section key="awards" data-section-id="awards" data-section-title="Awards & Honors" data-breakable="true">
-            <h3 style={sectionHeaderStyle}>Awards & Honors</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }} data-section-list="true">
-              {awards.map((award) => (
-                <div key={award.id} style={{ display: 'flex', flexDirection: 'column' }} data-section-item="true">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '10pt', color: theme.primaryColor || '#0f172a' }}>{award.title}</span>
-                    {award.date && <span style={{ marginLeft: 'auto', fontSize: '8.5pt', color: '#64748b', fontWeight: 'normal' }}>{award.date}</span>}
+            case 'publications':
+              return visibleSections.publications !== false && publications.length > 0 ? (
+                <section key="publications" data-section-id="publications" data-section-title="Publications" data-breakable="true">
+                  <h3 style={sectionHeaderStyle}>Publications</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} data-section-list="true">
+                    {publications.map((pub) => (
+                      <div key={pub.id} style={{ display: 'flex', flexDirection: 'column' }} data-section-item="true">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '10pt', color: theme.primaryColor || '#0f172a' }}>
+                            {pub.title}
+                            {pub.link && (
+                              <a href={pub.link} target="_blank" rel="noreferrer" style={{ color: theme.accentColor || '#3b82f6', textDecoration: 'none', fontWeight: 'normal', fontSize: '8.5pt', marginLeft: '8px' }}>
+                                🔗 link
+                              </a>
+                            )}
+                          </span>
+                          {pub.date && <span style={{ marginLeft: 'auto', fontSize: '8.5pt', color: '#64748b', fontWeight: 'normal' }}>{pub.date}</span>}
+                        </div>
+                        <div style={{ fontSize: '9pt', color: theme.textColor || '#475569', fontStyle: 'italic', fontWeight: 'normal' }}>
+                          {pub.publisher}
+                        </div>
+                        {pub.description && <p style={{ color: theme.textColor || '#475569', fontSize: '9.5pt', marginTop: '2px', fontWeight: 'normal' }}>{pub.description}</p>}
+                      </div>
+                    ))}
                   </div>
-                  <div style={{ fontSize: '9pt', color: theme.textColor || '#475569', fontStyle: 'italic', fontWeight: 'normal' }}>
-                    {award.issuer}
-                  </div>
-                  {award.description && <p style={{ color: theme.textColor || '#475569', fontSize: '9.5pt', marginTop: '2px', fontWeight: 'normal' }}>{award.description}</p>}
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null;
+                </section>
+              ) : null;
 
-      case 'publications':
-        return visibleSections.publications !== false && publications.length > 0 ? (
-          <section key="publications" data-section-id="publications" data-section-title="Publications" data-breakable="true">
-            <h3 style={sectionHeaderStyle}>Publications</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} data-section-list="true">
-              {publications.map((pub) => (
-                <div key={pub.id} style={{ display: 'flex', flexDirection: 'column' }} data-section-item="true">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '10pt', color: theme.primaryColor || '#0f172a' }}>
-                      {pub.title}
-                      {pub.link && (
-                        <a href={pub.link} target="_blank" rel="noreferrer" style={{ color: theme.accentColor || '#3b82f6', textDecoration: 'none', fontWeight: 'normal', fontSize: '8.5pt', marginLeft: '8px' }}>
-                          🔗 link
-                        </a>
-                      )}
-                    </span>
-                    {pub.date && <span style={{ marginLeft: 'auto', fontSize: '8.5pt', color: '#64748b', fontWeight: 'normal' }}>{pub.date}</span>}
+            case 'leadership':
+              return visibleSections.leadership !== false && leadership.length > 0 ? (
+                <section key="leadership" data-section-id="leadership" data-section-title="Leadership & Activities" data-breakable="true">
+                  <h3 style={sectionHeaderStyle}>Leadership & Activities</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} data-section-list="true">
+                    {leadership.map((lead) => (
+                      <div key={lead.id} data-section-item="true">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '10pt', color: theme.primaryColor || '#0f172a' }}>{lead.role}</span>
+                          <span style={{ fontSize: '8.5pt', color: '#64748b', marginLeft: 'auto', fontWeight: 'normal' }}>
+                            {lead.startDate} {lead.endDate ? "– " + lead.endDate : ''}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '9pt', color: theme.textColor || '#475569', fontStyle: 'italic', marginBottom: '4px', fontWeight: 'normal' }}>
+                          {lead.organization}
+                        </div>
+                        {lead.description && <p style={{ color: theme.textColor || '#475569', fontSize: '9.5pt', marginTop: '2px', marginBottom: '4px', fontWeight: 'normal' }}>{lead.description}</p>}
+                        {lead.bullets && lead.bullets.length > 0 && (
+                          <ul style={{ listStyleType: 'circle', paddingLeft: '20px', margin: '0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                            {lead.bullets.map((bullet, idx) => (
+                              <li key={idx} style={{ color: theme.textColor || '#334155', fontWeight: 'normal', fontSize: '9.5pt' }}>{bullet}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  <div style={{ fontSize: '9pt', color: theme.textColor || '#475569', fontStyle: 'italic', fontWeight: 'normal' }}>
-                    {pub.publisher}
-                  </div>
-                  {pub.description && <p style={{ color: theme.textColor || '#475569', fontSize: '9.5pt', marginTop: '2px', fontWeight: 'normal' }}>{pub.description}</p>}
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null;
+                </section>
+              ) : null;
 
-      case 'leadership':
-        return visibleSections.leadership !== false && leadership.length > 0 ? (
-          <section key="leadership" data-section-id="leadership" data-section-title="Leadership & Activities" data-breakable="true">
-            <h3 style={sectionHeaderStyle}>Leadership & Activities</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} data-section-list="true">
-              {leadership.map((lead) => (
-                <div key={lead.id} data-section-item="true">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '10pt', color: theme.primaryColor || '#0f172a' }}>{lead.role}</span>
-                    <span style={{ fontSize: '8.5pt', color: '#64748b', marginLeft: 'auto', fontWeight: 'normal' }}>
-                      {lead.startDate} {lead.endDate ? "– " + lead.endDate : ''}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '9pt', color: theme.textColor || '#475569', fontStyle: 'italic', marginBottom: '4px', fontWeight: 'normal' }}>
-                    {lead.organization}
-                  </div>
-                  {lead.description && <p style={{ color: theme.textColor || '#475569', fontSize: '9.5pt', marginTop: '2px', marginBottom: '4px', fontWeight: 'normal' }}>{lead.description}</p>}
-                  {lead.bullets && lead.bullets.length > 0 && (
-                    <ul style={{ listStyleType: 'circle', paddingLeft: '20px', margin: '0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                      {lead.bullets.map((bullet, idx) => (
-                        <li key={idx} style={{ color: theme.textColor || '#334155', fontWeight: 'normal', fontSize: '9.5pt' }}>{bullet}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null;
-
-      default:
+            default:
               return null;
           }
         })}

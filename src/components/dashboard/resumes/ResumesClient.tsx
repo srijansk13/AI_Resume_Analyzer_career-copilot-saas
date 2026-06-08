@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
-import { FileText, Clock, Bot, Search, Filter, AlertCircle, ShieldCheck, RefreshCw, Loader2, Target, Calendar } from 'lucide-react';
+import { FileText, Clock, Bot, Search, Filter, AlertCircle, ShieldCheck, RefreshCw, Loader2, Target, Calendar, Trash2, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -71,6 +71,10 @@ export function ResumesClient({ initialData }: { initialData: any[] }) {
     }
   };
 
+  const handleDelete = async (resumeId: string) => {
+    toast.error('Resume deletion is temporarily disabled during this preview.', { id: 'delete' });
+  };
+
   const filteredResumes = initialData
     .filter((resume) => {
       const matchesSearch = (resume.filename || resume.title || 'Untitled Resume').toLowerCase().includes(searchQuery.toLowerCase());
@@ -87,7 +91,7 @@ export function ResumesClient({ initialData }: { initialData: any[] }) {
     });
 
   return (
-    <div className="pt-24 pb-32 px-6 md:px-10 w-full max-w-6xl mx-auto min-h-screen relative overflow-hidden select-none">
+    <div className="pt-24 pb-32 px-6 md:px-10 w-full max-w-6xl mx-auto min-h-screen relative overflow-hidden select-none mobile-safe-bottom">
       
       {/* Background soft glow rings */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/[0.015] rounded-full blur-[140px] pointer-events-none" />
@@ -184,7 +188,7 @@ export function ResumesClient({ initialData }: { initialData: any[] }) {
                 `${resume.filename || resume.title || 'untitled'}-${resume.createdAt}-${i}`;
 
               const formattedDate = resume.createdAt 
-                ? new Date(resume.createdAt).toLocaleDateString(undefined, {
+                ? new Date(resume.createdAt).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric'
@@ -247,21 +251,28 @@ export function ResumesClient({ initialData }: { initialData: any[] }) {
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-white/[0.04] flex flex-col gap-3">
-                    <div className="flex items-center justify-between gap-3 w-full">
+                    <div className="flex items-center justify-between gap-2 w-full">
                       <Link
                         href={`/dashboard/analysis/${resume.analysisId || resume.id}`}
                         onClick={() => updateActiveResume(resume)}
-                        className="flex-1 py-2 text-center rounded-xl bg-white/[0.02] hover:bg-white/5 text-gray-300 hover:text-white text-xs font-black uppercase tracking-wider transition-colors border border-white/5"
+                        className="flex-1 py-2 text-center rounded-xl bg-white/[0.02] hover:bg-white/5 text-gray-300 hover:text-white text-[10px] font-black uppercase tracking-wider transition-colors border border-white/5 flex items-center justify-center gap-1.5"
                       >
-                        Intel
+                        <Search className="w-3 h-3" /> View
                       </Link>
                       <Link
                         href={`/dashboard/editor/${resume.analysisId || resume.id}`}
                         onClick={() => updateActiveResume(resume)}
-                        className="flex-1 py-2 text-center rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-black uppercase tracking-wider transition-colors border border-indigo-500/20"
+                        className="flex-1 py-2 text-center rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-wider transition-colors border border-indigo-500/20 flex items-center justify-center gap-1.5"
                       >
-                        Edit
+                        <Edit3 className="w-3 h-3" /> Edit
                       </Link>
+                      <button
+                        onClick={(e) => { e.preventDefault(); handleDelete(resume.id); }}
+                        className="py-2 px-3 text-center rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-wider transition-colors border border-red-500/20 flex items-center justify-center"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                     <button
                       onClick={() => handleReanalyze(resume.resumeId || resume.id)}

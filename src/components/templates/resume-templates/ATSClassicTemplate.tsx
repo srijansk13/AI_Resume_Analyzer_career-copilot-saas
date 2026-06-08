@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { FormattedLinks, ContactLinks, getNormalizedProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -119,7 +120,12 @@ export default function ATSClassicTemplate({ editorState }: TemplateProps) {
                       <div key={proj.id}>
                         <div className="flex justify-between items-baseline mb-0.5">
                           <span className="font-bold text-gray-900 text-sm">
-                            {proj.name} {proj.link && <span className="font-normal text-xs text-gray-600 font-sans">({proj.link})</span>}
+                            {proj.name}
+                            {getNormalizedProjectLinks(proj) && (
+                              <span style={{ fontWeight: 400, marginLeft: '8px' }}>
+                                <FormattedLinks text={getNormalizedProjectLinks(proj)} context="project" separator=" | " linkColor="#1d4ed8" style={{ fontSize: '0.75rem' }} />
+                              </span>
+                            )}
                           </span>
                           {proj.technologies && proj.technologies.length > 0 && (
                             <span className="text-xs text-gray-700 italic font-sans">

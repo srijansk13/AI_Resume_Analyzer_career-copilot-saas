@@ -50,6 +50,7 @@
 }
 
 :root {
+  --mobile-bottom-nav-height: 84px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -128,4 +129,19 @@
   html {
     @apply font-sans;
   }
+}
+
+@media (max-width: 1023px) {
+  .mobile-safe-bottom {
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom) + 32px) !important;
+  }
+}
+
+/* Utility to hide scrollbar but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }

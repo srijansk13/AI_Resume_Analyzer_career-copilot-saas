@@ -12,10 +12,12 @@ const STEPS = [
 
 export default function ProblemSolutionSection() {
   return (
-    <section id="how-it-works" className="py-24 scroll-mt-24 bg-[#050508]/40 border-y border-white/[0.04]">
+    <section id="how-it-works" className="py-16 lg:py-28 relative z-10 scroll-mt-12 border-y border-white/[0.02] bg-[#050508]/40 backdrop-blur-3xl overflow-hidden">
       <div className="container px-4 md:px-6 mx-auto max-w-7xl">
         <div className="max-w-3xl mx-auto text-center mb-14 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white">Most ATS tools only give you a score.</h2>
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight max-w-2xl mx-auto">
+            Most ATS tools only give you a score.
+          </h2>
           <p className="text-lg text-gray-400 font-semibold">You still don&apos;t know what to fix.</p>
           <p className="text-sm text-gray-500 leading-relaxed">
             Career Copilot explains the problem, suggests improvements, and lets you edit everything live — so you leave with a stronger resume, not just a number.

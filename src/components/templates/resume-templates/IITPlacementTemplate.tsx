@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -21,8 +22,12 @@ export default function IITPlacementTemplate({ editorState }: TemplateProps) {
           {personalInfo.contact.email && <span>Email: {personalInfo.contact.email}</span>}
           {personalInfo.contact.email && personalInfo.contact.phone && <span>|</span>}
           {personalInfo.contact.phone && <span>Ph: {personalInfo.contact.phone}</span>}
-          {personalInfo.contact.github && <span>| GitHub: {personalInfo.contact.github.split('/').pop()}</span>}
-          {personalInfo.contact.linkedin && <span>| LinkedIn: {personalInfo.contact.linkedin.split('/').pop()}</span>}
+          {((personalInfo.contact.linkedin) || (personalInfo.contact.github) || (personalInfo.contact.website )) && (
+            <span className="inline-flex items-center gap-2">
+              <span>|</span>
+              <ContactLinks contact={personalInfo.contact} separator={<span>|</span>} linkColor="inherit" />
+            </span>
+          )}
         </div>
       </header>
 
@@ -113,6 +118,12 @@ export default function IITPlacementTemplate({ editorState }: TemplateProps) {
                         <div className="flex justify-between items-baseline mb-0.5">
                           <div>
                             <span className="font-bold">{proj.name}</span>
+                            <ProjectLinks
+                              project={proj}
+                              separator=" | "
+                              linkColor={theme.accentColor || '#3b82f6'}
+                              style={{ fontSize: '8pt' }}
+                            />
                             {proj.technologies && proj.technologies.length > 0 && (
                               <span className="italic text-[0.95em]"> | {proj.technologies.join(', ')}</span>
                             )}

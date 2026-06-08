@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, AlertCircle, Hash, TrendingUp, Sparkles, Code, ChevronDown, ChevronUp, CheckSquare } from 'lucide-react';
+import { Briefcase, AlertCircle, Hash, TrendingUp, Sparkles, Code, ChevronDown, ChevronUp, CheckSquare, ChevronRight } from 'lucide-react';
 import { BentoCard } from '../bento/BentoCard';
 
 // List of noisy AI-generated fluff phrases to filter out
@@ -63,7 +63,9 @@ const dedupeSkills = (items: string[]): string[] => {
 
 export default function SkillsModule({ analysis }: { analysis: any }) {
   const [showAllKeywords, setShowAllKeywords] = useState(false);
-
+  const [showAllCore, setShowAllCore] = useState(false);
+  const [showAllFrameworks, setShowAllFrameworks] = useState(false);
+  const [showAllSoft, setShowAllSoft] = useState(false);
   const keywords = analysis?.keywords || {};
   const targetRole = analysis?.targetRole || 'Full Stack Developer';
   
@@ -168,38 +170,63 @@ export default function SkillsModule({ analysis }: { analysis: any }) {
       exit={{ opacity: 0, y: -10 }}
       className="space-y-8 font-sans"
     >
+      {/* Top Metrics Row */}
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mb-2">
+        <div className="bg-[#0a0a0f]/80 backdrop-blur-2xl border border-white/[0.06] p-4 rounded-3xl flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xl">
+          <div className="absolute top-0 right-0 p-2 opacity-10"><Briefcase className="w-10 h-10 text-blue-500" /></div>
+          <span className="text-2xl md:text-3xl font-black text-white">{coreTechnical.length + frameworksTools.length}</span>
+          <span className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-gray-500 mt-1">Matched Skills</span>
+        </div>
+        <div className="bg-[#0a0a0f]/80 backdrop-blur-2xl border border-white/[0.06] p-4 rounded-3xl flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xl">
+          <div className="absolute top-0 right-0 p-2 opacity-10"><AlertCircle className="w-10 h-10 text-orange-500" /></div>
+          <span className="text-2xl md:text-3xl font-black text-white">{cleanMissing.length}</span>
+          <span className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-gray-500 mt-1">Missing Skills</span>
+        </div>
+        <div className="bg-[#0a0a0f]/80 backdrop-blur-2xl border border-white/[0.06] p-4 rounded-3xl flex flex-col items-center justify-center text-center relative overflow-hidden shadow-xl">
+          <div className="absolute top-0 right-0 p-2 opacity-10"><Hash className="w-10 h-10 text-cyan-500" /></div>
+          <span className="text-2xl md:text-3xl font-black text-white">{curatedDensity.length}</span>
+          <span className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-gray-500 mt-1">ATS Keywords</span>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Card: 3 Core Structured Skill Categories */}
-        <BentoCard className="lg:col-span-2 space-y-6 border border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-2xl shadow-2xl relative">
+        <BentoCard className="lg:col-span-2 space-y-6 border border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-3xl shadow-2xl relative">
           <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-500/[0.02] rounded-full blur-2xl pointer-events-none" />
           
           <div className="flex justify-between items-center mb-6 border-b border-white/[0.04] pb-4">
             <h2 className="text-sm font-black uppercase tracking-wider text-gray-200 flex items-center">
               <Briefcase className="w-4 h-4 mr-2 text-indigo-400" />
-              Skills & Keywords
+              Verified Profile Skills
             </h2>
             <div className="flex items-center space-x-2 text-[10px] text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/10">
               <Sparkles className="w-3 h-3 text-blue-400 animate-pulse" />
-              <span className="font-bold uppercase tracking-wider text-[8px]">{targetRole} Profile</span>
+              <span className="font-bold uppercase tracking-wider text-[8px] hidden sm:inline">{targetRole} Profile</span>
             </div>
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-6 md:space-y-8">
             {/* 1. Core Technical Skills */}
             {coreTechnical.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-400 mr-2 inline-block" /> 
-                  Core Technical Skills
-                </h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400 mr-2 inline-block shadow-[0_0_8px_rgba(96,165,250,0.6)]" /> 
+                    Core Technical Skills
+                  </h3>
+                </div>
                 <div className="flex flex-wrap gap-2">
-                  {coreTechnical.map((s, i) => (
-                    <div key={i} className="group relative flex items-center px-3 py-1 bg-blue-500/5 border border-blue-500/15 rounded-xl transition-all cursor-default select-none">
-                      <span className="text-blue-200 text-xs font-semibold">{s}</span>
-                      <TrendingUp className="w-3 h-3 text-blue-400 ml-1.5 opacity-45 group-hover:opacity-100 transition-opacity" />
+                  {(showAllCore ? coreTechnical : coreTechnical.slice(0, 6)).map((s, i) => (
+                    <div key={i} className="group relative flex items-center shrink-0 px-3 py-1.5 bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/15 rounded-xl transition-all cursor-default select-none">
+                      <span className="text-blue-200 text-xs font-semibold tracking-wide">{s}</span>
                     </div>
                   ))}
+                  {coreTechnical.length > 6 && (
+                    <button onClick={() => setShowAllCore(!showAllCore)} className="px-3 py-1.5 bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 rounded-xl transition-all text-gray-400 hover:text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                      {showAllCore ? <><ChevronUp className="w-3 h-3" /> Less</> : <><ChevronDown className="w-3 h-3" /> +{coreTechnical.length - 6} More</>}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -207,34 +234,47 @@ export default function SkillsModule({ analysis }: { analysis: any }) {
             {/* 2. Frameworks & Tools */}
             {frameworksTools.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center">
-                  <span className="h-1.5 w-1.5 rounded-full bg-purple-400 mr-2 inline-block" /> 
-                  Frameworks & Tools
-                </h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-400 mr-2 inline-block shadow-[0_0_8px_rgba(192,132,252,0.6)]" /> 
+                    Frameworks & Tools
+                  </h3>
+                </div>
                 <div className="flex flex-wrap gap-2">
-                  {frameworksTools.map((s, i) => (
-                    <div key={i} className="group relative flex items-center px-3 py-1 bg-purple-500/5 border border-purple-500/15 rounded-xl transition-all cursor-default select-none">
-                      <span className="text-purple-200 text-xs font-semibold">{s}</span>
-                      <TrendingUp className="w-3 h-3 text-purple-400 ml-1.5 opacity-45 group-hover:opacity-100 transition-opacity" />
+                  {(showAllFrameworks ? frameworksTools : frameworksTools.slice(0, 6)).map((s, i) => (
+                    <div key={i} className="group relative flex items-center shrink-0 px-3 py-1.5 bg-purple-500/5 hover:bg-purple-500/10 border border-purple-500/15 rounded-xl transition-all cursor-default select-none">
+                      <span className="text-purple-200 text-xs font-semibold tracking-wide">{s}</span>
                     </div>
                   ))}
+                  {frameworksTools.length > 6 && (
+                    <button onClick={() => setShowAllFrameworks(!showAllFrameworks)} className="px-3 py-1.5 bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 rounded-xl transition-all text-gray-400 hover:text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                      {showAllFrameworks ? <><ChevronUp className="w-3 h-3" /> Less</> : <><ChevronDown className="w-3 h-3" /> +{frameworksTools.length - 6} More</>}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
 
-            {/* 5. Leadership & Collaboration */}
+            {/* 3. Leadership & Collaboration */}
             {softSkills.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 mr-2 inline-block" /> 
-                  Leadership & Collaboration
-                </h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 mr-2 inline-block shadow-[0_0_8px_rgba(52,211,153,0.6)]" /> 
+                    Leadership & Soft Skills
+                  </h3>
+                </div>
                 <div className="flex flex-wrap gap-2">
-                  {softSkills.map((s, i) => (
-                    <div key={i} className="flex items-center px-3 py-1 bg-emerald-500/5 border border-emerald-500/15 rounded-xl transition-all cursor-default select-none">
-                      <span className="text-emerald-200 text-xs font-semibold">{s}</span>
+                  {(showAllSoft ? softSkills : softSkills.slice(0, 5)).map((s, i) => (
+                    <div key={i} className="flex items-center shrink-0 px-3 py-1.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/15 rounded-xl transition-all cursor-default select-none">
+                      <span className="text-emerald-200 text-xs font-semibold tracking-wide">{s}</span>
                     </div>
                   ))}
+                  {softSkills.length > 5 && (
+                    <button onClick={() => setShowAllSoft(!showAllSoft)} className="px-3 py-1.5 bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 rounded-xl transition-all text-gray-400 hover:text-white text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                      {showAllSoft ? <><ChevronUp className="w-3 h-3" /> Less</> : <><ChevronDown className="w-3 h-3" /> +{softSkills.length - 5} More</>}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -245,20 +285,22 @@ export default function SkillsModule({ analysis }: { analysis: any }) {
         <BentoCard className="border border-white/[0.06] bg-[#0a0a0f]/80 backdrop-blur-2xl shadow-2xl flex flex-col relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/[0.015] rounded-full blur-2xl pointer-events-none" />
           
-          <h2 className="text-sm font-black uppercase tracking-wider text-gray-200 mb-6 flex items-center border-b border-white/[0.04] pb-4">
+          <h2 className="text-sm md:text-sm font-black uppercase tracking-wider text-gray-200 mb-4 md:mb-6 flex items-center border-b border-white/[0.04] pb-3 md:pb-4">
             <AlertCircle className="w-4 h-4 mr-2 text-orange-400" />
-            Missing Market Skills
+            <span className="flex-1">Missing Market Skills</span>
+            <span className="text-[9px] text-gray-600 flex md:hidden items-center font-bold uppercase tracking-widest animate-pulse">Swipe <ChevronRight className="w-2.5 h-2.5 ml-0.5" /></span>
           </h2>
           
-          <div className="space-y-3 flex-1 overflow-y-auto max-h-[340px] pr-1">
+          <div className="relative flex-1">
+            <div className="flex overflow-x-auto md:flex-col md:overflow-y-auto md:max-h-[340px] gap-2 md:gap-3 pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 md:pr-1 snap-x hide-scrollbar">
             {cleanMissing.length > 0 ? (
               cleanMissing.map((gap: any, i: number) => (
-                <div key={i} className="p-4 bg-orange-500/5 rounded-2xl border border-orange-500/15 relative overflow-hidden group hover:border-orange-500/30 hover:bg-orange-500/10 transition-all duration-300">
-                  <div className="absolute top-0 right-0 p-3 opacity-10">
-                    <AlertCircle className="w-8 h-8 text-orange-500" />
+                <div key={i} className="shrink-0 w-[75vw] sm:w-[260px] md:w-auto snap-center p-3 md:p-4 bg-orange-500/5 rounded-xl md:rounded-2xl border border-orange-500/15 relative overflow-hidden group hover:border-orange-500/30 hover:bg-orange-500/10 transition-all duration-300">
+                  <div className="absolute top-0 right-0 p-2 md:p-3 opacity-10">
+                    <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-orange-500" />
                   </div>
-                  <span className="text-orange-300 font-extrabold text-xs block mb-1.5 relative z-10">{gap.skill}</span>
-                  <p className="text-[11px] text-gray-400 relative z-10 leading-relaxed font-semibold">
+                  <span className="text-orange-300 font-extrabold text-[11px] md:text-xs block mb-1 md:mb-1.5 relative z-10">{gap.skill}</span>
+                  <p className="text-[10px] md:text-[11px] text-gray-400 relative z-10 leading-relaxed font-semibold line-clamp-2 md:line-clamp-none">
                     {gap.impact}
                   </p>
                 </div>
@@ -272,6 +314,8 @@ export default function SkillsModule({ analysis }: { analysis: any }) {
                 <p className="text-[10px] text-gray-500 mt-1">Your experience alignment looks solid.</p>
               </div>
             )}
+            </div>
+            <div className="absolute top-0 right-0 bottom-0 w-10 bg-gradient-to-l from-[#0a0a0f] to-transparent pointer-events-none md:hidden" />
           </div>
         </BentoCard>
 
@@ -287,31 +331,37 @@ export default function SkillsModule({ analysis }: { analysis: any }) {
               <Hash className="w-4 h-4 mr-2 text-cyan-400" />
               ATS Keywords & Density
             </h2>
-            <div className="text-[10px] text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/10 select-none">
-              <span className="font-extrabold text-cyan-400">{curatedDensity.length}</span> Total Keywords
+            <div className="flex items-center gap-3">
+              <div className="text-[10px] text-gray-400 bg-white/5 px-3 py-1 rounded-full border border-white/10 select-none">
+                <span className="font-extrabold text-cyan-400">{curatedDensity.length}</span> Total Keywords
+              </div>
+              <span className="text-[9px] text-gray-600 flex md:hidden items-center font-bold uppercase tracking-widest animate-pulse">Swipe <ChevronRight className="w-2.5 h-2.5 ml-0.5" /></span>
             </div>
           </div>
           
           <div className="space-y-4">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-              {displayedDensity.map((k: any, i: number) => (
-                <div 
-                  key={i} 
-                  className={`p-3 rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
-                    k.is_optimal 
-                      ? 'bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.02]' 
-                      : 'bg-red-500/5 border-red-500/10 hover:border-red-500/20'
-                  }`}
-                >
-                  <span className="text-xs font-bold text-gray-200 truncate w-full mb-2">{k.keyword}</span>
-                  <div className="flex items-center justify-between">
-                    <span className={`text-[10px] font-mono font-bold ${k.is_optimal ? 'text-gray-400' : 'text-red-400'}`}>
-                      Freq: {k.count}
-                    </span>
-                    <div className={`w-1.5 h-1.5 rounded-full ${k.is_optimal ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-red-500 animate-pulse'}`} />
+            <div className="relative">
+              <div className="flex overflow-x-auto snap-x hide-scrollbar gap-2 md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-3 pb-2 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+                {displayedDensity.map((k: any, i: number) => (
+                  <div 
+                    key={i} 
+                    className={`shrink-0 w-[35vw] sm:w-[150px] md:w-auto snap-start p-2.5 md:p-3 rounded-xl md:rounded-2xl border flex flex-col justify-between transition-all hover:scale-[1.01] ${
+                      k.is_optimal 
+                        ? 'bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.02]' 
+                        : 'bg-red-500/5 border-red-500/10 hover:border-red-500/20'
+                    }`}
+                  >
+                    <span className="text-[11px] md:text-xs font-bold text-gray-200 truncate w-full mb-1.5 md:mb-2">{k.keyword}</span>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[9px] md:text-[10px] font-mono font-bold ${k.is_optimal ? 'text-gray-400' : 'text-red-400'}`}>
+                        Freq: {k.count}
+                      </span>
+                      <div className={`w-1.5 h-1.5 rounded-full ${k.is_optimal ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-red-500 animate-pulse'}`} />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <div className="absolute top-0 right-0 bottom-2 w-12 bg-gradient-to-l from-[#0a0a0f] to-transparent pointer-events-none md:hidden" />
             </div>
 
             {curatedDensity.length > 8 && (
@@ -352,8 +402,11 @@ export default function SkillsModule({ analysis }: { analysis: any }) {
                 Bridge detected experience gaps and keywords by building targeted practical projects for a <span className="text-indigo-400 font-bold">{targetRole}</span> career.
               </p>
             </div>
-            <div className="text-[9px] uppercase font-black tracking-widest text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full shrink-0 self-start md:self-center select-none">
-              Career Guidance
+            <div className="flex items-center gap-3 self-start md:self-center">
+              <div className="text-[9px] uppercase font-black tracking-widest text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full shrink-0 select-none">
+                Career Guidance
+              </div>
+              <span className="text-[9px] text-gray-600 flex md:hidden items-center font-bold uppercase tracking-widest animate-pulse">Swipe <ChevronRight className="w-2.5 h-2.5 ml-0.5" /></span>
             </div>
           </div>
 
@@ -366,70 +419,74 @@ export default function SkillsModule({ analysis }: { analysis: any }) {
               </p>
             </div>
           ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {suggestedProjects.map((proj: any, i: number) => (
-              <div 
-                key={i} 
-                className="p-5 bg-white/[0.01] hover:bg-white/[0.02] border border-white/5 hover:border-indigo-500/20 rounded-2xl transition-all duration-300 flex flex-col justify-between relative group shadow-xl"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-black text-white group-hover:text-indigo-300 transition-colors">
-                      {proj.title || proj.name}
-                    </h3>
-                    {(proj.difficulty_level || proj.difficultyLevel) && (
-                      <span className="text-[9px] font-black uppercase tracking-wider text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full shrink-0">
-                        {proj.difficulty_level || proj.difficultyLevel}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Why it helps */}
-                  <p className="text-xs text-gray-400 leading-relaxed font-semibold">
-                    {proj.why_it_helps || proj.whyItHelps || proj.description}
-                  </p>
-                  
-                  {/* Stack & Skills */}
-                  <div className="space-y-2.5">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-[9px] font-black uppercase tracking-wider text-gray-500 mr-1.5">Stack:</span>
-                      {(proj.suggested_stack || proj.suggestedStack || []).map((tech: string, idx: number) => (
-                        <span key={idx} className="px-2 py-0.5 rounded-lg bg-indigo-500/5 border border-indigo-500/10 text-[10px] text-indigo-300 font-bold">
-                          {tech}
+          <div className="relative">
+            <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-3 md:grid md:grid-cols-2 md:gap-6 pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+              {suggestedProjects.map((proj: any, i: number) => (
+                <div 
+                  key={i} 
+                  className="shrink-0 w-[85vw] sm:w-[320px] md:w-auto snap-center p-4 md:p-5 bg-white/[0.01] hover:bg-white/[0.02] border border-white/5 hover:border-indigo-500/20 rounded-2xl transition-all duration-300 flex flex-col justify-between relative group shadow-xl"
+                >
+                  <div className="space-y-3 md:space-y-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-sm font-black text-white group-hover:text-indigo-300 transition-colors">
+                        {proj.title || proj.name}
+                      </h3>
+                      {(proj.difficulty_level || proj.difficultyLevel) && (
+                        <span className="text-[9px] font-black uppercase tracking-wider text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full shrink-0">
+                          {proj.difficulty_level || proj.difficultyLevel}
                         </span>
-                      ))}
+                      )}
                     </div>
                     
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="text-[9px] font-black uppercase tracking-wider text-gray-500 mr-1.5">Skills:</span>
-                      {(proj.skills_covered || proj.skillsCovered || []).map((skill: string, idx: number) => (
-                        <span key={idx} className="px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-[10px] text-gray-300 font-semibold">
-                          {skill}
-                        </span>
-                      ))}
+                    <div className="relative">
+                      <p className="text-[11px] md:text-xs text-gray-400 leading-relaxed font-semibold line-clamp-3 md:line-clamp-none">
+                        {proj.why_it_helps || proj.whyItHelps || proj.description}
+                      </p>
+                    </div>
+                    
+                    <div className="space-y-2.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[9px] font-black uppercase tracking-wider text-gray-500 mr-1.5">Stack:</span>
+                        {(proj.suggested_stack || proj.suggestedStack || []).map((tech: string, idx: number) => (
+                          <span key={idx} className="px-2 py-0.5 rounded-lg bg-indigo-500/5 border border-indigo-500/10 text-[10px] text-indigo-300 font-bold">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[9px] font-black uppercase tracking-wider text-gray-500 mr-1.5">Skills:</span>
+                        {(proj.skills_covered || proj.skillsCovered || []).map((skill: string, idx: number) => (
+                          <span key={idx} className="px-2 py-0.5 rounded-lg bg-white/5 border border-white/10 text-[10px] text-gray-300 font-semibold">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mt-5 pt-3.5 border-t border-white/[0.04] space-y-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center text-[10px] font-bold text-emerald-400 gap-1.5 bg-emerald-500/5 px-2.5 py-1 rounded-lg border border-emerald-500/10 shrink-0">
-                      <CheckSquare className="w-3.5 h-3.5" />
-                      <span>Resume Impact</span>
+                  <div className="mt-5 pt-3.5 border-t border-white/[0.04] space-y-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center text-[10px] font-bold text-emerald-400 gap-1.5 bg-emerald-500/5 px-2.5 py-1 rounded-lg border border-emerald-500/10 shrink-0">
+                        <CheckSquare className="w-3.5 h-3.5" />
+                        <span>Resume Impact</span>
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-semibold text-right leading-tight flex-1">
+                        {proj.resume_impact || proj.resumeImpact}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-gray-400 font-semibold text-right leading-tight flex-1">
-                      {proj.resume_impact || proj.resumeImpact}
-                    </span>
+                    {(proj.portfolio_value || proj.portfolioValue) && (
+                      <p className="text-[10px] text-gray-500 font-semibold leading-relaxed">
+                        <span className="text-indigo-400/90 font-bold uppercase tracking-wider text-[9px] mr-1.5">Portfolio</span>
+                        {proj.portfolio_value || proj.portfolioValue}
+                      </p>
+                    )}
                   </div>
-                  {(proj.portfolio_value || proj.portfolioValue) && (
-                    <p className="text-[10px] text-gray-500 font-semibold leading-relaxed">
-                      <span className="text-indigo-400/90 font-bold uppercase tracking-wider text-[9px] mr-1.5">Portfolio</span>
-                      {proj.portfolio_value || proj.portfolioValue}
-                    </p>
-                  )}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            {/* Right gradient fade — mobile only */}
+            <div className="absolute top-0 right-0 bottom-4 w-12 bg-gradient-to-l from-[#0a0a0f] to-transparent pointer-events-none md:hidden" />
           </div>
           )}
         </BentoCard>

@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 
 export default function LiveEditorSection() {
   return (
-    <section id="live-editor" className="py-24 scroll-mt-24 relative z-10">
+    <section id="live-editor" className="py-16 lg:py-28 relative scroll-mt-12 overflow-hidden z-10">
       <div className="container px-4 md:px-6 mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-5">
             <p className="text-[10px] font-black uppercase tracking-widest text-purple-400">Live resume editor</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
               Don&apos;t just check your resume. <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Improve it live.</span>
             </h2>
             <p className="text-sm text-gray-400 font-semibold leading-relaxed max-w-lg">

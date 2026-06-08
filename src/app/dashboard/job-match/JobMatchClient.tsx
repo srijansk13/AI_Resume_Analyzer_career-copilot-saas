@@ -339,7 +339,7 @@ export default function JobMatchClient({ items = [], resume, analysis }: JobMatc
   const strokeDashoffset = results ? circumference - (results.matchPercentage / 100) * circumference : circumference;
 
   return (
-    <div className="min-h-screen bg-[#030303] text-slate-100 pt-20 pb-32 px-6 relative overflow-hidden select-none">
+    <div className="min-h-screen bg-[#030303] text-slate-100 pt-20 pb-32 px-6 relative overflow-hidden select-none mobile-safe-bottom">
       {/* Background radial gradient glow */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/[0.02] rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/[0.015] rounded-full blur-[120px] pointer-events-none" />

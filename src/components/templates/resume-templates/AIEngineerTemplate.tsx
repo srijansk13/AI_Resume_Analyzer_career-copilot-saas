@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { FormattedLinks, ContactLinks, getNormalizedProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -171,6 +172,15 @@ export default function AIEngineerTemplate({ editorState }: TemplateProps) {
                 <div key={proj.id} data-section-item="true">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                     <span style={{ fontWeight: 'bold', fontSize: '10pt', color: theme.primaryColor || '#0f172a' }}>{proj.name}</span>
+                    {getNormalizedProjectLinks(proj) && (
+                      <FormattedLinks
+                        text={getNormalizedProjectLinks(proj)}
+                        context="project"
+                        separator=" | "
+                        linkColor={theme.accentColor || '#3b82f6'}
+                        style={{ fontSize: '8pt' }}
+                      />
+                    )}
                     {proj.technologies && proj.technologies.length > 0 && (
                       <span style={{ fontSize: '8.5pt', color: theme.accentColor || '#3b82f6', fontWeight: 'normal' }}>
                         ({proj.technologies.join(', ')})

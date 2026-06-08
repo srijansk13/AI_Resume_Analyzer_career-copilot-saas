@@ -102,12 +102,14 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
   const router = useRouter();
   const componentRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const printRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(0.85);
   const [isFitWidth, setIsFitWidth] = useState(false);
   const [isFitPage, setIsFitPage] = useState(true); // Default to Fit Page on load
   const [containerHeight, setContainerHeight] = useState(1123);
   const [saveStatus, setSaveStatus] = useState<'synced' | 'saving'>('synced');
   const [showExportModal, setShowExportModal] = useState(false);
+  const [isExportingServer, setIsExportingServer] = useState(false);
   const [customFileName, setCustomFileName] = useState(`${editorState.content.personalInfo.fullName.replace(/\s+/g, '_')}_Resume`);
   
   useEffect(() => {
@@ -119,10 +121,53 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
   }, [editorState]);
 
   const handlePrint = useReactToPrint({
-    contentRef: componentRef,
+    contentRef: printRef,
     documentTitle: customFileName || `${editorState.content.personalInfo.fullName.replace(/\s+/g, '_')}_Resume`,
     onAfterPrint: () => setShowExportModal(false)
   });
+
+  const handleServerPrint = async () => {
+    setIsExportingServer(true);
+    try {
+      let html = '';
+      const exportElement = printRef.current?.querySelector('[data-export-page="true"]');
+      if (exportElement) {
+        const clone = exportElement.cloneNode(true) as HTMLElement;
+        const hiddenElements = clone.querySelectorAll('.print\\:hidden, [data-export-debug]');
+        hiddenElements.forEach(el => el.remove());
+        html = clone.outerHTML;
+      }
+
+      const response = await fetch('/api/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          html,
+          documentTitle: customFileName || `${editorState.content.personalInfo.fullName.replace(/\s+/g, '_')}_Resume`,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${customFileName || 'Resume'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      setShowExportModal(false);
+    } catch (error) {
+      console.error(error);
+      alert("PDF export failed. Please try again.");
+    } finally {
+      setIsExportingServer(false);
+    }
+  };
 
   const handleTemplateChange = (templateId: string) => {
     setEditorState(prev => prev ? { ...prev, templateId } : null);
@@ -374,67 +419,88 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
         </div>
       </div>
 
-      {/* Canvas Area with scroll support */}
+      {/* Hidden dedicated export container - Purely for PDF generation, guaranteed full A4 size without mobile transforms */}
+      <div className="fixed top-0 left-[-9999px] opacity-0 pointer-events-none z-[-1] print:static print:opacity-100 print:pointer-events-auto print:z-auto print:w-full print:bg-white" aria-hidden="true">
+        <div 
+          ref={printRef} 
+          className="export-resume-root flex flex-col bg-white text-black mx-auto"
+          style={{ width: '794px', minHeight: '1123px' }}
+        >
+          {/* Inject print-specific stylesheets for standard A4 boundary print rendering inside the print ref so react-to-print copies it */}
+          <style dangerouslySetInnerHTML={{ __html: `
+            @media print {
+              @page {
+                size: A4 portrait;
+                margin: 0 !important; /* Templates provide their own padding */
+              }
+              body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              /* Hide the main toolbar during print */
+              .sticky.top-0.z-10 {
+                display: none !important;
+              }
+              .export-resume-root {
+                width: 794px !important;
+                min-width: 794px !important;
+                max-width: 794px !important;
+                box-sizing: border-box !important;
+                min-height: 1123px !important;
+                margin: 0 auto !important;
+                box-shadow: none !important;
+                border: none !important;
+                transform: none !important;
+                page-break-inside: auto !important;
+                page-break-after: auto !important;
+                overflow: visible !important;
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+              }
+              /* Allow large sections to split naturally so we don't get huge blank gaps */
+              section, article, .resume-section {
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+              }
+              /* Keep headings attached to the content immediately following them */
+              h1, h2, h3, h4, h5, h6 {
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+              }
+              /* Avoid splitting individual items inside a section */
+              .resume-section > div > div, .resume-section > ul > li, [data-breakable="true"] > div > div, [data-section-item="true"], .break-inside-avoid {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
+              ul, li {
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+              }
+              li {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+              }
+            }
+          ` }} />
+          <div data-export-root="resume">
+            <ResumePageEngine 
+              editorState={editorState}
+              TemplateComponent={getActiveTemplateComponent()}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Canvas Area with scroll support (Visible Preview) */}
       <div 
         ref={canvasRef}
-        className="flex-1 overflow-auto custom-scrollbar bg-[#121212] relative w-full flex justify-center items-start p-8 pb-32"
+        className="flex-1 overflow-auto custom-scrollbar bg-[#121212] relative w-full flex justify-center items-start p-8 pb-32 mobile-safe-bottom print:p-0 print:pb-0 print:bg-white"
       >
-        {/* Inject print-specific stylesheets for standard A4 boundary print rendering */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          @media print {
-            @page {
-              size: A4 portrait;
-              margin: 0 !important; /* Templates provide their own padding */
-            }
-            body {
-              background: white !important;
-              margin: 0 !important;
-              padding: 0 !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            .printable-page, .resume-print-root {
-              width: 100% !important;
-              max-width: 100% !important;
-              box-sizing: border-box !important;
-              min-height: auto !important; /* Let content determine height, no blank pages */
-              margin: 0 !important;
-              box-shadow: none !important;
-              border: none !important;
-              transform: none !important;
-              page-break-inside: auto !important;
-              page-break-after: auto !important;
-              overflow: visible !important;
-              word-break: break-word !important;
-              overflow-wrap: break-word !important;
-            }
-            /* Allow large sections to split naturally so we don't get huge blank gaps */
-            section, article, .resume-section {
-              page-break-inside: auto !important;
-              break-inside: auto !important;
-            }
-            /* Keep headings attached to the content immediately following them */
-            h1, h2, h3, h4, h5, h6 {
-              page-break-after: avoid !important;
-              break-after: avoid !important;
-            }
-            /* Avoid splitting individual items inside a section (direct children of space-y wrappers) */
-            .resume-section > div > div, .resume-section > ul > li, [data-breakable="true"] > div > div, [data-section-item="true"], .break-inside-avoid {
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
-            }
-            ul, li {
-              page-break-inside: auto !important;
-              break-inside: auto !important;
-            }
-            li {
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
-            }
-          }
-        ` }} />
         <div 
-          className="print:!h-auto print:!w-auto print:!block"
+          className="print:hidden"
           style={{
             height: `${containerHeight * zoom}px`,
             width: `${794 * zoom}px`,
@@ -443,7 +509,7 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
           }}
         >
           <div 
-            className="relative flex-shrink-0 print:!transform-none print:!w-full print:!static print:!left-auto print:!ml-0"
+            className="relative flex-shrink-0"
             style={{ 
               transform: `scale(${zoom})`, 
               transformOrigin: 'top center',
@@ -454,10 +520,10 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
               transition: 'transform 0.15s ease-out'
             }}
           >
-            {/* The printable area containing pages */}
+            {/* The visible preview containing pages */}
             <div 
               ref={componentRef} 
-              className="flex flex-col gap-8 select-text w-[794px] print:!w-full print:!gap-0 print:!block"
+              className="flex flex-col gap-8 select-text w-[794px]"
             >
               <ResumePageEngine 
                 editorState={editorState}
@@ -471,13 +537,15 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
       {/* Export PDF Modal */}
       <AnimatePresence>
         {showExportModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="bg-[#121212] border border-white/10 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="bg-[#121212] border-t md:border border-white/10 rounded-t-3xl md:rounded-2xl w-full max-w-md shadow-2xl overflow-hidden pb-8 md:pb-0 mobile-safe-bottom"
             >
+              <div className="md:hidden w-12 h-1.5 bg-white/10 rounded-full mx-auto mt-3 mb-1" />
               <div className="flex items-center justify-between p-5 border-b border-white/10">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
                   <FileText className="w-4 h-4 text-indigo-400" />
@@ -522,12 +590,26 @@ export default function LivePreviewPanel({ editorState, setEditorState, analysis
                   <button
                     onClick={() => {
                       if (!customFileName) setCustomFileName('Resume');
-                      handlePrint();
+                      if (window.innerWidth <= 768) {
+                        handleServerPrint();
+                      } else {
+                        handlePrint();
+                      }
                     }}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 transition-all"
+                    disabled={isExportingServer}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    Download PDF
+                    {isExportingServer ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-3.5 h-3.5" />
+                        Download PDF
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

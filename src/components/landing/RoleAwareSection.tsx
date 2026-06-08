@@ -15,13 +15,13 @@ const ROLES = [
 
 export default function RoleAwareSection() {
   return (
-    <section id="role-targeting" className="py-24 scroll-mt-24 relative z-10">
+    <section className="py-16 lg:py-28 relative overflow-hidden bg-[#07070a]/80 border-y border-white/[0.04] backdrop-blur-xl">
       <div className="container px-4 md:px-6 mx-auto max-w-7xl text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/5 px-3 py-1.5 text-[10px] text-indigo-400 font-extrabold tracking-widest uppercase mb-4">
           <Target className="w-3.5 h-3.5" />
           Role-aware analysis
         </div>
-        <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight mb-4">
           Optimize your resume for the role you want
         </h2>
         <p className="text-sm text-gray-400 font-semibold max-w-2xl mx-auto leading-relaxed mb-10">

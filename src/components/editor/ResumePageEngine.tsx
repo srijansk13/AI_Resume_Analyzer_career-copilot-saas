@@ -34,6 +34,7 @@ export default function ResumePageEngine({ editorState, TemplateComponent }: Res
 
       {/* Standard Continuous A4 Visual Container */}
       <div
+        data-export-page="true"
         className="shadow-2xl shadow-black/85 rounded-sm bg-white relative print:shadow-none print:m-0 printable-page"
         style={{
           width: '794px',

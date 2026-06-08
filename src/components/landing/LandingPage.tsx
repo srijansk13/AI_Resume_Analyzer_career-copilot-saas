@@ -387,8 +387,7 @@ export default function LandingPage() {
         )}
       </AnimatePresence>
 
-      {/* HERO */}
-      <section id="home" className="relative pt-32 pb-20 lg:pt-44 lg:pb-28 scroll-mt-24">
+      <section id="home" className="relative pt-24 pb-12 lg:pt-44 lg:pb-28 scroll-mt-24">
         <div className="container px-4 md:px-6 mx-auto max-w-7xl relative">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
@@ -408,7 +407,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight text-white leading-[1.08] max-w-2xl"
+                className="text-3xl sm:text-4xl lg:text-[3.25rem] font-extrabold tracking-tight text-white leading-[1.08] max-w-2xl"
               >
                 Get recruiter-style AI feedback on your resume in{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-400">
@@ -436,13 +435,13 @@ export default function LandingPage() {
                   onMouseEnter={() => setCursorHovered(true)}
                   onMouseLeave={() => setCursorHovered(false)}
                 >
-                  <Button className="h-11 px-6 bg-white hover:bg-slate-200 text-black rounded-xl text-xs font-black shadow-lg shadow-white/5 flex items-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                  <Button className="w-full lg:w-auto h-11 px-6 bg-white hover:bg-slate-200 text-black rounded-xl text-xs font-black shadow-lg shadow-white/5 flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all">
                     Analyze My Resume
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
                 <a href="#sample-analysis">
-                  <Button variant="outline" className="h-11 px-6 border-white/10 hover:border-white/20 text-white hover:bg-white/5 rounded-xl text-xs font-black bg-white/[0.02] flex items-center gap-1.5 backdrop-blur-md hover:scale-[1.02] active:scale-[0.98] transition-all">
+                  <Button variant="outline" className="w-full lg:w-auto h-11 px-6 border-white/10 hover:border-white/20 text-white hover:bg-white/5 rounded-xl text-xs font-black bg-white/[0.02] flex items-center justify-center gap-1.5 backdrop-blur-md hover:scale-[1.02] active:scale-[0.98] transition-all">
                     <Eye className="h-4 w-4 text-cyan-400" />
                     View Sample Analysis
                   </Button>
@@ -501,15 +500,14 @@ export default function LandingPage() {
 
       <LiveEditorSection />
 
-      {/* FEATURES */}
-      <section id="features" className="py-28 relative z-10 scroll-mt-12">
+      <section id="features" className="py-16 lg:py-28 relative z-10 scroll-mt-12">
         <div className="container px-4 md:px-6 mx-auto max-w-7xl">
           <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/20 bg-purple-500/5 px-3 py-1 text-[9px] text-purple-400 font-extrabold tracking-widest uppercase">
               <Cpu className="h-3 w-3" />
               <span>Advanced Capabilities</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
               Everything required to <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500">conquer ATS</span>
             </h2>
             <p className="text-gray-400 text-sm sm:text-base font-semibold leading-relaxed max-w-2xl mx-auto">
@@ -523,7 +521,7 @@ export default function LandingPage() {
             <div 
               onMouseEnter={() => setCursorHovered(true)}
               onMouseLeave={() => setCursorHovered(false)}
-              className="group p-8 rounded-2xl bg-[#08080c]/50 border border-white/[0.04] backdrop-blur-lg hover:border-indigo-500/30 hover:bg-white/[0.01] hover:scale-[1.01] transition-all duration-300 relative overflow-hidden flex flex-col justify-between"
+              className="group p-6 lg:p-8 rounded-2xl bg-[#08080c]/50 border border-white/[0.04] backdrop-blur-lg hover:border-indigo-500/30 hover:bg-white/[0.01] hover:scale-[1.01] transition-all duration-300 relative overflow-hidden flex flex-col justify-between"
             >
               <div className="space-y-4">
                 <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform duration-300">
@@ -681,8 +679,7 @@ export default function LandingPage() {
 
       <RoleAwareSection />
 
-      {/* BEFORE / AFTER */}
-      <section id="optimization" className="py-28 relative scroll-mt-12">
+      <section id="optimization" className="py-16 lg:py-28 relative scroll-mt-12">
         <div className="container px-4 md:px-6 mx-auto max-w-6xl relative z-10">
           
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
@@ -690,7 +687,7 @@ export default function LandingPage() {
               <Award className="h-3 w-3 animate-bounce" />
               <span>Measurable Enhancements</span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
               Interactive Achievement Transformation
             </h2>
             <p className="text-gray-400 text-sm sm:text-base font-semibold max-w-2xl mx-auto leading-relaxed">
@@ -698,8 +695,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Interactive Bullet Switcher Cards with scoring ring & text diff */}
-          <div className="bg-[#07070a]/90 border border-white/[0.08] rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+          <div className="bg-[#07070a]/90 border border-white/[0.08] rounded-3xl p-5 lg:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
             
             {/* Glowing mesh ring inside */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-indigo-500/[0.015] rounded-full blur-[100px] pointer-events-none" />

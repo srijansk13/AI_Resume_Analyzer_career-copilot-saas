@@ -99,7 +99,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="p-6 lg:p-12 w-full max-w-7xl mx-auto space-y-10">
+    <div className="p-6 lg:p-12 w-full max-w-7xl mx-auto space-y-10 mobile-safe-bottom">
       {/* Redesigned AI Upload Dropzone */}
       <div
         id="upload-area-box"

@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -20,10 +21,12 @@ export default function JakesResumeTemplate({ editorState }: TemplateProps) {
           {personalInfo.contact.phone && <span>{personalInfo.contact.phone}</span>}
           {personalInfo.contact.phone && personalInfo.contact.email && <span>|</span>}
           {personalInfo.contact.email && <span>{personalInfo.contact.email}</span>}
-          {personalInfo.contact.email && personalInfo.contact.linkedin && <span>|</span>}
-          {personalInfo.contact.linkedin && <a href={personalInfo.contact.linkedin} className="underline">{personalInfo.contact.linkedin.replace(/^https?:\/\//, '')}</a>}
-          {personalInfo.contact.linkedin && personalInfo.contact.github && <span>|</span>}
-          {personalInfo.contact.github && <a href={personalInfo.contact.github} className="underline">{personalInfo.contact.github.replace(/^https?:\/\//, '')}</a>}
+          {((personalInfo.contact.linkedin) || (personalInfo.contact.github) || (personalInfo.contact.website )) && (
+            <span className="inline-flex items-center gap-2">
+              <span>|</span>
+              <ContactLinks contact={personalInfo.contact} separator={<span>|</span>} linkColor="inherit" />
+            </span>
+          )}
         </div>
       </header>
 
@@ -90,6 +93,12 @@ export default function JakesResumeTemplate({ editorState }: TemplateProps) {
                         <div className="flex justify-between items-baseline mb-0.5">
                           <div>
                             <span className="font-bold">{proj.name}</span>
+                            <ProjectLinks
+                              project={proj}
+                              separator=" | "
+                              linkColor={theme.accentColor || '#3b82f6'}
+                              style={{ fontSize: '8pt' }}
+                            />
                             {proj.technologies && proj.technologies.length > 0 && (
                               <span className="italic"> | {proj.technologies.join(', ')}</span>
                             )}

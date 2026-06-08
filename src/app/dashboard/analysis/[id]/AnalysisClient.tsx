@@ -79,6 +79,8 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
   const [activeModule, setActiveModule] = useState('overview');
   const [cmdOpen, setCmdOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAnalysisMenuOpen, setIsAnalysisMenuOpen] = useState(false);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [selectedRole, setSelectedRole] = useState(analysis?.targetRole || 'Full Stack Developer');
   
@@ -195,24 +197,23 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col md:flex-row pt-16">
       
-      {/* Mobile Header & Hamburger */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-white/10 bg-slate-900/50 backdrop-blur-md sticky top-16 z-40">
-        <div className="flex items-center space-x-2">
-          <Bot className="w-5 h-5 text-blue-400" />
-          <span className="font-medium text-sm">AI OS Workspace</span>
-        </div>
-        <div className="flex space-x-3">
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 bg-white/5 rounded-lg border border-white/10 text-gray-300">
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </button>
-        </div>
+      {/* Mobile Sticky Analysis Menu Bar */}
+      <div className="md:hidden sticky top-0 z-40 bg-slate-950/80 backdrop-blur-2xl border-b border-white/[0.05] px-4 py-2 flex items-center justify-between shadow-xl shadow-black/20">
+        <button
+          onClick={() => setIsAnalysisMenuOpen(true)}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold text-xs outline-none"
+        >
+          <Menu className="w-4 h-4" />
+          <span>Analysis Menu</span>
+        </button>
+        <span className="text-[10px] uppercase font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full flex items-center gap-1">
+          <Target className="w-3 h-3" />
+          ATS {displayAtsScore}%
+        </span>
       </div>
 
         {/* Sidebar Navigation */}
-      <aside className={`
-        fixed md:sticky top-16 md:top-16 h-[calc(100vh-4rem)] w-64 bg-slate-900/30 backdrop-blur-xl border-r border-white/5 flex flex-col transition-transform duration-300 z-40
-        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
+      <aside className="hidden md:flex sticky top-16 h-[calc(100vh-4rem)] w-64 bg-slate-900/30 backdrop-blur-xl border-r border-white/5 flex-col z-40">
         {/* Profile Card */}
         <div className="p-6 pb-4 border-b border-white/5">
           <div className="flex items-center space-x-3">
@@ -324,25 +325,30 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
 
       {/* Main Workspace Area */}
       <main className="flex-1 p-4 md:p-8 overflow-x-hidden min-h-screen">
-        <div className="w-full max-w-7xl mx-auto space-y-8 pb-32">
+        <div className="w-full max-w-7xl mx-auto space-y-8 pb-32 mobile-safe-bottom">
           
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-            <div>
-              <div className="flex items-center space-x-2 text-xs text-gray-400 mb-2">
-                <span>Workspace</span>
-                <span className="text-gray-600">/</span>
-                <span className="text-white capitalize">{activeModule.replace('_', ' ')}</span>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3 md:gap-4 mb-2 md:mb-0">
+            <div className="w-full md:w-auto flex justify-between items-start">
+              <div>
+                <div className="hidden md:flex items-center space-x-2 text-xs text-gray-400 mb-2">
+                  <span>Workspace</span>
+                  <span className="text-gray-600">/</span>
+                  <span className="text-white capitalize">{activeModule.replace('_', ' ')}</span>
+                </div>
+                <h1 className="text-lg md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 line-clamp-1 max-w-[220px] md:max-w-none">
+                  {resume.title || 'Untitled Resume'}
+                </h1>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                {resume.title || 'Untitled Resume'}
-              </h1>
             </div>
-            <div className="flex space-x-3 hidden md:flex items-center">
+            
+            <div className="flex items-center justify-between w-full md:w-auto gap-2">
               {/* Target Role Dropdown */}
-              <div className="flex items-center space-x-2 bg-slate-900/60 border border-white/5 rounded-full px-4 py-2 hover:border-white/10 transition-all">
-                <Target className="w-3.5 h-3.5 text-indigo-400" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Targeting:</span>
+              <div className="flex-1 md:flex-none flex items-center space-x-2 bg-slate-900/60 border border-white/5 rounded-full px-3 md:px-4 py-1.5 md:py-2 hover:border-white/10 transition-all justify-between md:justify-start">
+                <div className="flex items-center">
+                  <Target className="w-3.5 h-3.5 text-indigo-400 mr-1 md:mr-2" />
+                  <span className="hidden md:inline text-[10px] font-black uppercase tracking-wider text-gray-400">Targeting:</span>
+                </div>
                 <select
                   value={selectedRole}
                   onChange={(e) => {
@@ -350,7 +356,7 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
                     setSelectedRole(newRole);
                     handleRefresh(newRole);
                   }}
-                  className="bg-transparent text-xs text-white font-bold focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent text-[11px] md:text-xs text-white font-bold focus:outline-none cursor-pointer w-full md:w-auto truncate pr-2"
                 >
                   {TARGET_ROLES.map(role => (
                     <option key={role} value={role} className="bg-slate-950 text-white font-semibold">
@@ -360,36 +366,46 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
                 </select>
               </div>
 
-              <Button 
-                onClick={() => handleRefresh()}
-                disabled={refreshing}
-                variant="outline"
-                className="border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 disabled:opacity-50 rounded-full"
-              >
-                {refreshing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    <span>{LOADING_MESSAGES[loadingTextIndex]}</span>
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    <span>Refresh AI Analysis</span>
-                  </>
-                )}
-              </Button>
-              <Link href={`/dashboard/editor/${analysis._id || analysis.id}`}>
-                <Button className="bg-blue-600 hover:bg-blue-500 text-white rounded-full">
-                  Edit Resume
-                </Button>
-              </Link>
-              <Button 
-                onClick={handleExport}
-                variant="outline" 
-                className="border-white/10 bg-white/5 text-gray-300 hover:text-white rounded-full"
-              >
-                <Download className="w-4 h-4 mr-2" /> Export
-              </Button>
+              <div className="flex gap-2 shrink-0">
+                <Link href={`/dashboard/editor/${analysis._id || analysis.id}`}>
+                  <Button className="bg-blue-600 hover:bg-blue-500 text-white rounded-full text-xs h-8 md:h-9 px-4 shadow-lg shadow-blue-600/20">
+                    Edit
+                  </Button>
+                </Link>
+                <div className="md:hidden">
+                  <Button 
+                    onClick={() => setIsMoreMenuOpen(true)}
+                    variant="outline" 
+                    className="border-white/10 bg-white/5 text-gray-300 hover:text-white rounded-full text-xs h-8 w-8 p-0"
+                  >
+                    <Menu className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                
+                <div className="hidden md:flex gap-2">
+                  <Button 
+                    onClick={() => handleRefresh()}
+                    disabled={refreshing}
+                    variant="outline"
+                    className="border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 disabled:opacity-50 rounded-full text-xs h-9"
+                  >
+                    {refreshing ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-4 h-4" />
+                    )}
+                    <span className="ml-2">Refresh AI Analysis</span>
+                  </Button>
+                  <Button 
+                    onClick={handleExport}
+                    variant="outline" 
+                    className="border-white/10 bg-white/5 text-gray-300 hover:text-white rounded-full text-xs h-9 px-4"
+                  >
+                    <Download className="w-4 h-4 mr-2" /> 
+                    <span>Export</span>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -440,7 +456,7 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
           </div>
 
           {/* Next Best Actions Panel */}
-          <div className="bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+          <div className="hidden md:block bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/[0.06] rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
             {/* Ambient glows */}
             <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-[80px] pointer-events-none" />
             <div className="absolute bottom-0 right-1/4 w-[250px] h-[250px] bg-purple-500/5 rounded-full blur-[65px] pointer-events-none" />
@@ -579,6 +595,173 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
       {/* Global AI Systems */}
       <CommandPalette open={cmdOpen} setOpen={setCmdOpen} setActiveModule={handleModuleChange} />
       
+      {/* Mobile Analysis Menu Drawer */}
+      <AnimatePresence>
+        {isAnalysisMenuOpen && (
+          <div className="fixed inset-0 z-50 flex items-stretch justify-start bg-black/60 backdrop-blur-md md:hidden">
+            <motion.div
+              initial={{ opacity: 0, x: "-100%" }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: "-100%" }}
+              transition={{ type: "spring", stiffness: 400, damping: 40 }}
+              className="w-[85%] max-w-sm bg-[#0a0a0f]/95 backdrop-blur-3xl border-r border-white/10 shadow-2xl overflow-hidden flex flex-col h-full relative"
+            >
+              {/* Premium Background Glows */}
+              <div className="absolute top-0 left-0 w-[200px] h-[200px] bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
+              <div className="absolute bottom-0 right-0 w-[200px] h-[200px] bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
+
+              <div className="px-6 py-5 flex items-center justify-between border-b border-white/[0.04] relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                  </div>
+                  <h3 className="text-base font-black text-white tracking-wide">Analysis Menu</h3>
+                </div>
+                <button
+                  onClick={() => setIsAnalysisMenuOpen(false)}
+                  className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-all duration-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto px-5 py-6 space-y-8 hide-scrollbar mobile-safe-bottom relative z-10">
+                
+                {/* Modules */}
+                <div className="space-y-1.5">
+                  <h4 className="text-[10px] uppercase font-black tracking-widest text-gray-500 ml-2 mb-3">Intelligence Modules</h4>
+                  {NAV_ITEMS.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeModule === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => { handleModuleChange(item.id); setIsAnalysisMenuOpen(false); }}
+                        className={`w-full flex items-center px-4 py-3.5 rounded-2xl transition-all duration-300 outline-none group relative overflow-hidden ${
+                          isActive 
+                            ? 'bg-white/10 border-white/10 text-white shadow-lg' 
+                            : 'bg-transparent text-gray-400 border-transparent hover:bg-white/5 hover:text-gray-200'
+                        }`}
+                      >
+                        {isActive && (
+                          <motion.div layoutId="mobileActiveNav" className="absolute inset-0 bg-indigo-500/20 -z-10" />
+                        )}
+                        <Icon className={`w-4 h-4 mr-3 transition-colors ${isActive ? 'text-indigo-400' : 'text-gray-500 group-hover:text-gray-300'}`} />
+                        <span className="text-sm font-bold flex-1 text-left">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Next Best Actions (Mobile Drawer Version) */}
+                <div className="space-y-3 relative">
+                  <h4 className="text-[10px] uppercase font-black tracking-widest text-indigo-400 ml-2 flex items-center mb-3">
+                    <Sparkles className="w-3 h-3 mr-1.5 animate-pulse" /> Next Best Actions
+                  </h4>
+                  
+                  <button
+                    onClick={() => {
+                      const analysisId = analysis?._id || analysis?.id;
+                      if (!analysisId) return toast.error("Context unavailable.");
+                      router.push(`/dashboard/editor/${analysisId}`);
+                    }}
+                    className="w-full flex items-center p-3.5 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all group shadow-sm hover:shadow-md"
+                  >
+                    <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-400 mr-3 group-hover:scale-110 transition-transform"><Sparkles className="w-4 h-4" /></div>
+                    <div className="text-left">
+                      <div className="text-xs font-bold text-white group-hover:text-blue-300 transition-colors">Edit Resume</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">Live modifications workspace</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const analysisId = analysis?._id || analysis?.id;
+                      const resumeId = resume?._id || resume?.id;
+                      if (!analysisId || !resumeId) return toast.error("Context unavailable.");
+                      localStorage.setItem("activeResume", JSON.stringify({ analysisId, resumeId, name: analysis?.parsedData?.name, atsScore: displayAtsScore }));
+                      router.push("/dashboard/job-match");
+                    }}
+                    className="w-full flex items-center p-3.5 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all group shadow-sm hover:shadow-md"
+                  >
+                    <div className="p-2.5 bg-purple-500/10 rounded-xl text-purple-400 mr-3 group-hover:scale-110 transition-transform"><Briefcase className="w-4 h-4" /></div>
+                    <div className="text-left">
+                      <div className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">Match Job</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">Compare with target roles</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleRefresh()}
+                    disabled={refreshing}
+                    className="w-full flex items-center p-3.5 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all group shadow-sm hover:shadow-md disabled:opacity-50"
+                  >
+                    <div className="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-400 mr-3 group-hover:scale-110 transition-transform">
+                      {refreshing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                    </div>
+                    <div className="text-left">
+                      <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">{refreshing ? 'Refreshing...' : 'Refresh Analysis'}</div>
+                      <div className="text-[10px] text-gray-500 mt-0.5">Run fresh full analyzer</div>
+                    </div>
+                  </button>
+                </div>
+
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile More Options Bottom Sheet */}
+      <AnimatePresence>
+        {isMoreMenuOpen && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-md md:hidden">
+            <motion.div
+              initial={{ opacity: 0, y: "100%" }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: "100%" }}
+              transition={{ type: "spring", stiffness: 400, damping: 40 }}
+              className="w-full bg-[#0a0a0f]/95 backdrop-blur-3xl border-t border-white/10 rounded-t-3xl shadow-2xl overflow-hidden flex flex-col relative"
+            >
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[100px] bg-indigo-500/10 rounded-full blur-[60px] pointer-events-none" />
+              
+              <div className="w-full flex justify-center pt-3 pb-1 relative z-10">
+                <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+              </div>
+              <div className="px-6 pb-4 pt-2 flex items-center justify-between border-b border-white/[0.04] relative z-10">
+                <h3 className="text-base font-black text-white tracking-wide">Quick Actions</h3>
+                <button
+                  onClick={() => setIsMoreMenuOpen(false)}
+                  className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 py-6 space-y-3 relative z-10 mobile-safe-bottom hide-scrollbar">
+                <button
+                  onClick={() => { handleRefresh(); setIsMoreMenuOpen(false); }}
+                  disabled={refreshing}
+                  className="w-full flex items-center px-4 py-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 rounded-2xl active:scale-95 transition-all text-white outline-none group"
+                >
+                  <div className="p-2 bg-blue-500/10 rounded-xl mr-4 group-hover:scale-110 transition-transform">
+                    {refreshing ? <Loader2 className="w-4 h-4 animate-spin text-blue-400" /> : <RefreshCw className="w-4 h-4 text-blue-400" />}
+                  </div>
+                  <span className="text-sm font-bold flex-1 text-left">Refresh AI Analysis</span>
+                </button>
+                <button
+                  onClick={() => { handleExport(); setIsMoreMenuOpen(false); }}
+                  className="w-full flex items-center px-4 py-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 rounded-2xl active:scale-95 transition-all text-white outline-none group"
+                >
+                  <div className="p-2 bg-purple-500/10 rounded-xl mr-4 group-hover:scale-110 transition-transform">
+                    <Download className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <span className="text-sm font-bold flex-1 text-left">Export Resume</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

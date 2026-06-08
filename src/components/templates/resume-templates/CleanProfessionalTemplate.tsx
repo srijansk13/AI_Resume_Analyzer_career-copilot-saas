@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { FormattedLinks, getNormalizedProjectLinks } from '@/utils/linkFormatter';
 
 interface TemplateProps {
   editorState: EditorState;
@@ -17,7 +18,6 @@ export default function CleanProfessionalTemplate({ editorState }: TemplateProps
     backgroundColor: theme.backgroundColor || '#ffffff',
     padding: theme.pageMargin || '32px',
     lineHeight: theme.lineHeight || '1.5',
-    minHeight: '297mm',
     display: 'flex',
     flexDirection: 'column' as const,
     gap: theme.sectionSpacing || '18px',
@@ -78,6 +78,9 @@ export default function CleanProfessionalTemplate({ editorState }: TemplateProps
               )}
               {personalInfo.contact.github && (
                 <a href={personalInfo.contact.github} target="_blank" rel="noreferrer" style={{ color: theme.accentColor || '#0284c7', textDecoration: 'none' }}>GitHub</a>
+              )}
+              {personalInfo.contact.website && (
+                <a href={personalInfo.contact.website} target="_blank" rel="noreferrer" style={{ color: theme.accentColor || '#0284c7', textDecoration: 'none' }}>Portfolio</a>
               )}
             </div>
           </div>
@@ -143,7 +146,18 @@ export default function CleanProfessionalTemplate({ editorState }: TemplateProps
                       <div key={proj.id} data-section-item="true">
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '4px' }}>
-                          <span style={{ fontWeight: 700, fontSize: '10pt', color: '#0f172a' }}>{proj.name}</span>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 700, fontSize: '10pt', color: '#0f172a' }}>{proj.name}</span>
+                            {getNormalizedProjectLinks(proj) && (
+                              <FormattedLinks
+                                text={getNormalizedProjectLinks(proj)}
+                                context="project"
+                                separator=" | "
+                                linkColor={theme.accentColor || '#0284c7'}
+                                style={{ fontSize: '8pt' }}
+                              />
+                            )}
+                          </div>
                           {proj.technologies && proj.technologies.length > 0 && (
                             <span style={{ fontSize: '8pt', color: theme.accentColor || '#0284c7', backgroundColor: `${theme.accentColor}10` || '#f0f9ff', padding: '2px 8px', borderRadius: '12px', fontWeight: 500 }}>
                               {proj.technologies.join(', ')}

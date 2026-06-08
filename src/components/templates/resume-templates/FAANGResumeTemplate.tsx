@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -18,8 +19,9 @@ export default function FAANGResumeTemplate({ editorState }: TemplateProps) {
           {personalInfo.contact.email && <span>{personalInfo.contact.email}</span>}
           {personalInfo.contact.phone && <span>{personalInfo.contact.phone}</span>}
           {personalInfo.contact.location && <span>{personalInfo.contact.location}</span>}
-          {personalInfo.contact.github && <a href={personalInfo.contact.github} className="text-blue-600 hover:underline">{personalInfo.contact.github.replace(/^https?:\/\//, '')}</a>}
-          {personalInfo.contact.linkedin && <a href={personalInfo.contact.linkedin} className="text-blue-600 hover:underline">{personalInfo.contact.linkedin.replace(/^https?:\/\//, '')}</a>}
+          {((personalInfo.contact.linkedin) || (personalInfo.contact.github) || (personalInfo.contact.website )) && (
+            <ContactLinks contact={personalInfo.contact} separator={<span> </span>} linkColor="#2563eb" />
+          )}
         </div>
       </header>
 
@@ -67,6 +69,12 @@ export default function FAANGResumeTemplate({ editorState }: TemplateProps) {
                         <div className="flex justify-between items-baseline mb-1">
                           <div>
                             <span className="font-bold text-[1.11em]">{proj.name}</span>
+                            <ProjectLinks
+                              project={proj}
+                              separator=" | "
+                              linkColor={theme.accentColor || '#3b82f6'}
+                              style={{ fontSize: '8pt' }}
+                            />
                             {proj.technologies && proj.technologies.length > 0 && (
                               <span className="italic ml-2">({proj.technologies.join(', ')})</span>
                             )}

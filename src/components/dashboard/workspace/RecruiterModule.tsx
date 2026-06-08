@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserCircle2, CheckCircle2, ShieldAlert, Building2, Rocket, ArrowRight, MessageSquare, Bot } from 'lucide-react';
+import { CheckCircle2, ShieldAlert, Building2, Rocket, ArrowRight, Bot } from 'lucide-react';
 import { BentoCard } from '../bento/BentoCard';
 
 function getStartupFounderData(analysis: any, faang: any) {
@@ -97,7 +97,6 @@ export default function RecruiterModule({ analysis }: { analysis: any }) {
   const faang = analysis?.recruiter || {};
   const [mode, setMode] = useState<'faang' | 'startup'>('faang');
 
-  // Probability parser
   const getProbabilityScore = (prob: string) => {
     if (!prob) return 50;
     const p = prob.toLowerCase();
@@ -189,69 +188,91 @@ export default function RecruiterModule({ analysis }: { analysis: any }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="flex flex-col md:grid md:grid-cols-2 gap-6 md:gap-8 overflow-x-hidden">
           
           {/* Top Strengths */}
-          <div className="space-y-4">
-            <h3 className="text-[10px] text-gray-400 uppercase tracking-widest font-black flex items-center mb-4 border-b border-white/[0.03] pb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-2 inline-block" /> Value Proposition
-            </h3>
-            <div className="space-y-3">
-              <AnimatePresence mode="popLayout">
-                {Array.isArray(currentData.top_strengths) && currentData.top_strengths.length > 0 ? (
-                  currentData.top_strengths.map((str: string, i: number) => (
-                    <motion.div 
-                      key={i} 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.08 }}
-                      className="flex items-start text-xs bg-emerald-500/5 p-4 rounded-2xl border border-emerald-500/15 group hover:border-emerald-500/30 transition-all duration-300"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 mr-3 shrink-0 mt-0.5" />
-                      <span className="text-gray-300 font-semibold leading-relaxed">{str}</span>
-                    </motion.div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-xs italic">No strengths identified in this context.</p>
-                )}
-              </AnimatePresence>
+          <div className="space-y-3 md:space-y-4">
+            <div className="flex justify-between items-center mb-2 md:mb-4 border-b border-white/[0.03] pb-2">
+              <h3 className="text-[10px] text-gray-400 uppercase tracking-widest font-black flex items-center">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-2 inline-block" /> Value Proposition
+              </h3>
+              {/* Mobile-only swipe hint */}
+              <span className="text-[9px] text-gray-500 flex md:hidden items-center uppercase tracking-widest font-bold animate-pulse">
+                Swipe <ArrowRight className="w-2.5 h-2.5 ml-1" />
+              </span>
+            </div>
+            {/* Carousel with gradient fade */}
+            <div className="relative">
+              <div className="flex overflow-x-auto snap-x snap-mandatory md:flex-col gap-3 pb-2 md:pb-0 hide-scrollbar -mx-6 px-6 md:mx-0 md:px-0">
+                <AnimatePresence mode="popLayout">
+                  {Array.isArray(currentData.top_strengths) && currentData.top_strengths.length > 0 ? (
+                    currentData.top_strengths.map((str: string, i: number) => (
+                      <motion.div 
+                        key={i} 
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        className="snap-center shrink-0 w-[85%] md:w-auto flex items-start text-[11px] md:text-xs bg-emerald-500/5 p-3 md:p-4 rounded-2xl border border-emerald-500/15 group hover:border-emerald-500/30 transition-all duration-300"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-400 mr-2.5 md:mr-3 shrink-0 mt-0.5" />
+                        <span className="text-gray-300 font-semibold leading-relaxed">{str}</span>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-xs italic">No strengths identified in this context.</p>
+                  )}
+                </AnimatePresence>
+              </div>
+              {/* Right gradient fade — mobile only */}
+              <div className="absolute top-0 right-0 bottom-2 w-10 bg-gradient-to-l from-[#0a0a0f] to-transparent pointer-events-none md:hidden" />
             </div>
           </div>
 
-          {/* Hiring manager Concerns */}
-          <div className="space-y-4">
-            <h3 className="text-[10px] text-gray-400 uppercase tracking-widest font-black flex items-center mb-4 border-b border-white/[0.03] pb-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-500 mr-2 inline-block" /> Risk Factors
-            </h3>
-            <div className="space-y-3.5">
-              <AnimatePresence mode="popLayout">
-                {Array.isArray(currentData.hiring_manager_concerns) && currentData.hiring_manager_concerns.length > 0 ? (
-                  currentData.hiring_manager_concerns.map((c: any, i: number) => (
-                    <motion.div 
-                      key={i} 
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.08 }}
-                      className="flex flex-col text-xs bg-red-500/5 p-4 rounded-2xl border border-red-500/15 group hover:border-red-500/30 transition-all duration-300"
-                    >
-                      <div className="flex items-start mb-3">
-                        <ShieldAlert className="w-4 h-4 text-red-400 mr-3 shrink-0 mt-0.5" />
-                        <span className="text-gray-200 font-bold leading-relaxed">{c.concern}</span>
-                      </div>
-                      {c.explainability_node && (
-                        <div className="pl-7">
-                          <div className="bg-[#0e0e14] border border-red-500/20 p-3.5 rounded-xl">
-                            <span className="text-[9px] uppercase text-red-400 font-black tracking-widest block mb-1">Simulated Fix Strategy</span>
-                            <span className="text-gray-400 leading-relaxed font-semibold">{c.explainability_node.fix_strategy}</span>
-                          </div>
+          {/* Hiring Manager Concerns */}
+          <div className="space-y-3 md:space-y-4 mt-2 md:mt-0">
+            <div className="flex justify-between items-center mb-2 md:mb-4 border-b border-white/[0.03] pb-2">
+              <h3 className="text-[10px] text-gray-400 uppercase tracking-widest font-black flex items-center">
+                <span className="h-1.5 w-1.5 rounded-full bg-red-500 mr-2 inline-block" /> Risk Factors
+              </h3>
+              {/* Mobile-only swipe hint */}
+              <span className="text-[9px] text-gray-500 flex md:hidden items-center uppercase tracking-widest font-bold animate-pulse">
+                Swipe <ArrowRight className="w-2.5 h-2.5 ml-1" />
+              </span>
+            </div>
+            {/* Carousel with gradient fade */}
+            <div className="relative">
+              <div className="flex overflow-x-auto snap-x snap-mandatory md:flex-col gap-3 pb-2 md:pb-0 hide-scrollbar -mx-6 px-6 md:mx-0 md:px-0">
+                <AnimatePresence mode="popLayout">
+                  {Array.isArray(currentData.hiring_manager_concerns) && currentData.hiring_manager_concerns.length > 0 ? (
+                    currentData.hiring_manager_concerns.map((c: any, i: number) => (
+                      <motion.div 
+                        key={i} 
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.08 }}
+                        className="snap-center shrink-0 w-[85%] md:w-auto flex flex-col text-[11px] md:text-xs bg-red-500/5 p-3 md:p-4 rounded-2xl border border-red-500/15 group hover:border-red-500/30 transition-all duration-300"
+                      >
+                        <div className="flex items-start mb-2.5 md:mb-3">
+                          <ShieldAlert className="w-3.5 h-3.5 md:w-4 md:h-4 text-red-400 mr-2.5 md:mr-3 shrink-0 mt-0.5" />
+                          <span className="text-gray-200 font-bold leading-relaxed">{c.concern}</span>
                         </div>
-                      )}
-                    </motion.div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-xs italic">No major risk factors detected.</p>
-                )}
-              </AnimatePresence>
+                        {c.explainability_node && (
+                          <div className="pl-6 md:pl-7">
+                            <div className="bg-[#0e0e14] border border-red-500/20 p-2.5 md:p-3.5 rounded-xl">
+                              <span className="text-[8px] md:text-[9px] uppercase text-red-400 font-black tracking-widest block mb-1">Simulated Fix Strategy</span>
+                              <span className="text-gray-400 leading-relaxed font-semibold text-[10px] md:text-xs">{c.explainability_node.fix_strategy}</span>
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-xs italic">No major risk factors detected.</p>
+                  )}
+                </AnimatePresence>
+              </div>
+              {/* Right gradient fade — mobile only */}
+              <div className="absolute top-0 right-0 bottom-2 w-10 bg-gradient-to-l from-[#0a0a0f] to-transparent pointer-events-none md:hidden" />
             </div>
           </div>
 

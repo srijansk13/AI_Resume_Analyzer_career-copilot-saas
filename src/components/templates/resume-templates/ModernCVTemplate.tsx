@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { FormattedLinks, ContactLinks, getNormalizedProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -129,6 +130,15 @@ export default function ModernCVTemplate({ editorState }: TemplateProps) {
                           <span className="w-24 shrink-0 text-[0.89em] text-gray-500"> </span>
                           <div>
                             <span className="font-bold text-gray-800">{proj.name}</span>
+                            {getNormalizedProjectLinks(proj) && (
+                              <FormattedLinks
+                                text={getNormalizedProjectLinks(proj)}
+                                context="project"
+                                separator=" | "
+                                linkColor={theme.accentColor || '#3b82f6'}
+                                style={{ fontSize: '8pt' }}
+                              />
+                            )}
                             {proj.technologies && proj.technologies.length > 0 && <span className="text-gray-500 italic"> — {proj.technologies.join(', ')}</span>}
                           </div>
                         </div>

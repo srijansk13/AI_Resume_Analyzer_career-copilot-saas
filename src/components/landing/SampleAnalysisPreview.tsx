@@ -5,11 +5,13 @@ import { AlertCircle, Check, Code, Hash, User, Wand2 } from 'lucide-react';
 
 export default function SampleAnalysisPreview() {
   return (
-    <section id="sample-analysis" className="py-24 scroll-mt-24 relative z-10 border-y border-white/[0.04] bg-[#050508]/50">
+    <section id="sample-analysis" className="py-16 lg:py-28 relative scroll-mt-12 overflow-hidden border-t border-white/[0.04] bg-[#050508]/50">
       <div className="container px-4 md:px-6 mx-auto max-w-7xl">
         <div className="text-center max-w-3xl mx-auto mb-14 space-y-3">
           <p className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Product preview</p>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white">See what you get after analysis</h2>
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            See what you get after analysis
+          </h2>
           <p className="text-sm text-gray-400 font-semibold leading-relaxed">
             Every upload unlocks ATS scoring, skill gaps, bullet rewrites, recruiter-style feedback, and portfolio project ideas — before you edit anything.
           </p>

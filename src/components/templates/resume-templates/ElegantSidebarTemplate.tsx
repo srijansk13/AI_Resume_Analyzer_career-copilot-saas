@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -173,6 +174,12 @@ export default function ElegantSidebarTemplate({ editorState }: TemplateProps) {
                 <div key={proj.id} data-section-item="true">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                     <span style={{ fontWeight: 'bold', fontSize: '10pt', color: theme.primaryColor || '#0f172a' }}>{proj.name}</span>
+                    <ProjectLinks
+                      project={proj}
+                      separator=" | "
+                      linkColor={theme.accentColor || '#3b82f6'}
+                      style={{ fontSize: '8pt' }}
+                    />
                     {proj.technologies && proj.technologies.length > 0 && (
                       <span style={{ fontSize: '8.5pt', color: theme.accentColor || '#3b82f6', fontWeight: 'normal' }}>
                         ({proj.technologies.join(', ')})
@@ -354,20 +361,12 @@ export default function ElegantSidebarTemplate({ editorState }: TemplateProps) {
                 <div>{personalInfo.contact.location}</div>
               </div>
             )}
-            {personalInfo.contact.linkedin && (
+            {((personalInfo.contact.linkedin) || (personalInfo.contact.github) || (personalInfo.contact.website )) && (
               <div>
-                <div style={{ fontWeight: 600, color: '#94a3b8' }}>LINKEDIN</div>
-                <a href={personalInfo.contact.linkedin} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', textDecoration: 'none' }} className="hover:underline">
-                  linkedin.com
-                </a>
-              </div>
-            )}
-            {personalInfo.contact.github && (
-              <div>
-                <div style={{ fontWeight: 600, color: '#94a3b8' }}>GITHUB</div>
-                <a href={personalInfo.contact.github} target="_blank" rel="noreferrer" style={{ color: '#60a5fa', textDecoration: 'none' }} className="hover:underline">
-                  github.com
-                </a>
+                <div style={{ fontWeight: 600, color: '#94a3b8' }}>LINKS</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <ContactLinks contact={personalInfo.contact} separator={<br />} linkColor="#60a5fa" />
+                </div>
               </div>
             )}
           </div>

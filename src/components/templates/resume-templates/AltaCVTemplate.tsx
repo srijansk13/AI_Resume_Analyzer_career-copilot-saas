@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -24,8 +25,11 @@ export default function AltaCVTemplate({ editorState }: TemplateProps) {
             {personalInfo.contact.email && <div>{personalInfo.contact.email}</div>}
             {personalInfo.contact.phone && <div>{personalInfo.contact.phone}</div>}
             {personalInfo.contact.location && <div>{personalInfo.contact.location}</div>}
-            {personalInfo.contact.linkedin && <div><a href={personalInfo.contact.linkedin} className="hover:underline">{personalInfo.contact.linkedin.replace(/^https?:\/\//, '')}</a></div>}
-            {personalInfo.contact.github && <div><a href={personalInfo.contact.github} className="hover:underline">{personalInfo.contact.github.replace(/^https?:\/\//, '')}</a></div>}
+            {((personalInfo.contact.linkedin) || (personalInfo.contact.github) || (personalInfo.contact.website )) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <ContactLinks contact={personalInfo.contact} separator={<br />} linkColor="#fff" />
+              </div>
+            )}
           </div>
         </section>
 
@@ -108,6 +112,12 @@ export default function AltaCVTemplate({ editorState }: TemplateProps) {
                   <div className="absolute w-2 h-2 rounded-full bg-[#1b3a4b] -left-[5px] top-1.5" />
                   <div className="flex justify-between items-baseline mb-0.5">
                     <span className="font-bold text-[1.11em] text-[#1b3a4b]">{proj.name}</span>
+                    <ProjectLinks
+                      project={proj}
+                      separator=" | "
+                      linkColor={theme.accentColor || '#3b82f6'}
+                      style={{ fontSize: '8pt' }}
+                    />
                     <span className="text-[0.89em] text-gray-500 font-semibold"></span>
                   </div>
                   {proj.technologies && proj.technologies.length > 0 && (

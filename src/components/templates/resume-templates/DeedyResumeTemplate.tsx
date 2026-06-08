@@ -1,5 +1,6 @@
 import React from 'react';
 import { EditorState } from '@/models/EditorState';
+import { ContactLinks, ProjectLinks } from "@/utils/linkFormatter";
 
 interface TemplateProps {
   editorState: EditorState;
@@ -27,10 +28,13 @@ export default function DeedyResumeTemplate({ editorState }: TemplateProps) {
           <section className="resume-section">
             <h2 className="text-[1.26em] font-semibold text-[#333] uppercase tracking-widest border-b border-[#333] mb-2 pb-0.5">Links</h2>
             <div className="space-y-0.5 text-[0.89em]">
-              {personalInfo.contact.github && <div><a href={personalInfo.contact.github} className="text-[#0055aa] hover:underline">github.com/{personalInfo.contact.github.split('/').pop()}</a></div>}
-              {personalInfo.contact.linkedin && <div><a href={personalInfo.contact.linkedin} className="text-[#0055aa] hover:underline">linkedin.com/in/{personalInfo.contact.linkedin.split('/').pop()}</a></div>}
               {personalInfo.contact.email && <div>{personalInfo.contact.email}</div>}
               {personalInfo.contact.phone && <div>{personalInfo.contact.phone}</div>}
+              {((personalInfo.contact.linkedin) || (personalInfo.contact.github) || (personalInfo.contact.website )) && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <ContactLinks contact={personalInfo.contact} separator={<br />} linkColor="#0055aa" />
+                </div>
+              )}
             </div>
           </section>
 
@@ -120,6 +124,12 @@ export default function DeedyResumeTemplate({ editorState }: TemplateProps) {
                     <div className="flex justify-between items-baseline mb-0.5">
                       <div>
                         <span className="font-semibold text-[#333] text-[1.11em]">{proj.name}</span>
+                        <ProjectLinks
+                          project={proj}
+                          separator=" | "
+                          linkColor={theme.accentColor || '#3b82f6'}
+                          style={{ fontSize: '8pt' }}
+                        />
                         {proj.technologies && proj.technologies.length > 0 && (
                           <span className="text-[0.89em] italic text-[#666]"> | {proj.technologies.join(', ')}</span>
                         )}
