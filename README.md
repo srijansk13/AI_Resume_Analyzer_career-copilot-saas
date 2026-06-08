@@ -120,6 +120,18 @@ The platform includes a fully interactive live resume editor where users can:
 - preview resume updates in real time
 - and most importantly…
 
+### Additional Editor Features
+
+- 20+ professional resume templates
+- ATS-focused templates
+- LaTeX-inspired resume templates
+- Academic resume templates
+- FAANG-style resume templates
+- IIT/NIT placement resume templates
+- Mobile editor experience
+- One-click template switching
+- Resume version management
+
 ### 🔥 See ATS score changes update dynamically while editing
 
 Instead of repeatedly uploading resumes after every small change, users can improve resumes directly inside the platform while continuously tracking optimization progress.
@@ -136,6 +148,25 @@ Instead of repeatedly uploading resumes after every small change, users can impr
 - Reanalysis workflows
 
 This creates a much smoother and more intelligent resume improvement workflow compared to traditional ATS tools.
+
+---
+
+## ✅ Professional PDF Export System
+
+Career Copilot includes a production-grade PDF export pipeline designed for consistency across desktop and mobile devices.
+
+### Features Include:
+
+- Custom PDF naming before export
+- Mobile-compatible PDF generation
+- Desktop PDF generation
+- ATS-friendly export layouts
+- Clickable LinkedIn, GitHub, Portfolio, Live Demo, and Project links
+- Multi-page resume support
+- Template-preserving exports
+- Consistent A4 formatting
+
+The goal is to ensure resumes look identical when downloaded, shared, or submitted to recruiters.
 
 ---
 
@@ -257,6 +288,23 @@ The platform was designed with a modern production-grade SaaS experience.
 - Guided onboarding helpers
 - Interactive dashboard experience
 - Smooth transitions and loaders
+
+### Mobile Experience
+
+Career Copilot includes a dedicated mobile experience rather than a simple responsive layout.
+
+Features include:
+
+- Mobile-first navigation
+- Bottom navigation system
+- Mobile resume analysis workflows
+- Mobile resume editing
+- Mobile PDF export
+- Mobile settings management
+- Optimized touch interactions
+- Responsive analysis dashboards
+
+The platform is designed to feel like a native application while remaining fully web-based.
 
 The goal was to make the platform feel like a real AI SaaS product — not a basic resume checker.
 
@@ -403,6 +451,10 @@ Production optimized with:
 - Resume intelligence workspace
 - ATS analysis entry point
 - Guided onboarding helpers
+- Dedicated mobile dashboard
+- Mobile onboarding experience
+- Resume management workflows
+- Mobile navigation system
 
 ---
 
@@ -425,6 +477,10 @@ Production optimized with:
 - Live synchronized preview
 - Mobile-friendly editing
 - One-click resume improvements
+- Custom PDF naming workflow
+- Clickable link rendering
+- Cross-device export consistency
+- Mobile export optimization
 
 ---
 
@@ -504,6 +560,19 @@ Career Copilot is deployed using:
 - MongoDB Atlas
 
 Production environment variables are configured securely inside the Vercel dashboard.
+
+---
+
+# 📊 Early Product Metrics
+
+Career Copilot has already:
+
+- Analyzed 70+ resumes
+- Supported multiple industries and experience levels
+- Processed ATS evaluations across diverse resume formats
+- Received feedback from developers, students, recruiters, and early testers
+
+These insights have directly influenced product improvements, mobile optimization, editor workflows, and export reliability.
 
 ---
 
