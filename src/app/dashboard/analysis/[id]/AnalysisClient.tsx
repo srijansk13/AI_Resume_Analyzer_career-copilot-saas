@@ -56,12 +56,15 @@ const NAV_ITEMS = [
 ];
 
 const LOADING_MESSAGES = [
-  'Parsing resume again...',
-  'Extracting latest resume intelligence...',
-  'Running AI analysis...',
-  'Rebuilding ATS score...',
-  'Updating career insights...',
-  'Finalizing report...',
+  'Analyzing resume structure...',
+  'Extracting skills and experience...',
+  'Evaluating ATS compatibility...',
+  'Comparing against market expectations...',
+  'Generating recruiter insights...',
+  'Calculating keyword relevance...',
+  'Building improvement roadmap...',
+  'Generating AI recommendations...',
+  'Finalizing analysis...',
 ];
 
 const TARGET_ROLES = [
@@ -757,6 +760,62 @@ export default function AnalysisClient({ analysis, resume }: { analysis: any, re
                   </div>
                   <span className="text-sm font-bold flex-1 text-left">Export Resume</span>
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Reanalyze Overlay */}
+      <AnimatePresence>
+        {refreshing && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl md:hidden p-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="w-full max-w-sm bg-[#0a0a0f]/95 border border-white/10 shadow-2xl rounded-3xl p-8 relative overflow-hidden text-center"
+            >
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-[200px] bg-indigo-500/20 rounded-full blur-[80px] pointer-events-none" />
+              
+              <div className="relative z-10 flex flex-col items-center">
+                {/* Pulsing AI Icon */}
+                <div className="relative w-20 h-20 mb-8">
+                  <div className="absolute inset-0 border-2 border-indigo-500/30 rounded-full animate-[ping_2s_ease-in-out_infinite]" />
+                  <div className="absolute inset-2 border-2 border-purple-500/40 rounded-full animate-[ping_2.5s_ease-in-out_infinite]" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 rounded-full shadow-[0_0_30px_rgba(99,102,241,0.3)] backdrop-blur-md">
+                    <Sparkles className="w-8 h-8 text-indigo-400 animate-pulse" />
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-black text-white mb-2">
+                  AI is reviewing your resume
+                </h3>
+                
+                <p className="text-sm font-semibold text-indigo-400 mb-6 min-h-[40px] flex items-center justify-center">
+                  <motion.span
+                    key={loadingTextIndex}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {LOADING_MESSAGES[loadingTextIndex]}
+                  </motion.span>
+                </p>
+                
+                {/* Animated progress bar indicator */}
+                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-4 relative">
+                   <motion.div 
+                     className="absolute top-0 left-0 h-full w-1/3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+                     animate={{ x: ['-100%', '300%'] }}
+                     transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                   />
+                </div>
+
+                <p className="text-[10px] uppercase font-bold tracking-widest text-gray-500 whitespace-pre-line">
+                  {loadingTextIndex > 4 ? 'Still working...\nGenerating deeper insights' : 'This may take a few seconds'}
+                </p>
               </div>
             </motion.div>
           </div>

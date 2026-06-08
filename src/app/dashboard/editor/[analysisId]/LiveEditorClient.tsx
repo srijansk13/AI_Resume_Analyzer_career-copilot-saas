@@ -616,15 +616,22 @@ export default function LiveEditorClient({ analysis, resume }: LiveEditorClientP
 
   if (!editorState) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-[#030303] text-white">
-        <motion.div 
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-gray-400 font-semibold text-sm tracking-widest uppercase flex items-center gap-2"
-        >
-          <div className="w-2 h-2 rounded-full bg-indigo-500 animate-ping" />
-          Initializing Live Editor Workspace...
-        </motion.div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#030303] text-white p-4">
+        <div className="max-w-2xl w-full flex flex-col items-center text-center space-y-6">
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
+            <div className="w-6 h-6 border-2 border-t-blue-400 border-r-blue-400 border-b-transparent border-l-transparent rounded-full animate-spin" />
+          </div>
+          
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-white mb-2">Preparing Resume Editor...</h1>
+            <p className="text-sm text-gray-400 font-medium">Loading your resume, analysis, templates, and editor workspace.</p>
+          </div>
+
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 opacity-40">
+            <div className="h-[400px] rounded-3xl border border-white/5 bg-white/[0.02] animate-pulse"></div>
+            <div className="h-[400px] rounded-3xl border border-white/5 bg-white/[0.02] animate-pulse hidden md:block"></div>
+          </div>
+        </div>
       </div>
     );
   }
